@@ -19,14 +19,16 @@ elif pam.Norb==7:
                'dxz':    3,\
                'dyz':    4,\
                'px':     5,\
-               'py':     6} 
+               'py':     6,\
+               'Nd_s':   7} 
     int_orb = {0: 'd3z2r2',\
                1: 'dx2y2',\
                2: 'dxy',\
                3: 'dxz',\
                4: 'dyz',\
                5: 'px',\
-               6: 'py'}
+               6: 'py',\
+               7: 'Nd_s'}
 elif pam.Norb==9:
     orb_int = {'d3z2r2': 0,\
                'dx2y2':  1,\
@@ -36,7 +38,8 @@ elif pam.Norb==9:
                'px1':    5,\
                'py1':    6,\
                'px2':    7,\
-               'py2':    8} 
+               'py2':    8,\
+               'Nd_s':   9} 
     int_orb = {0: 'd3z2r2',\
                1: 'dx2y2',\
                2: 'dxy',\
@@ -45,7 +48,8 @@ elif pam.Norb==9:
                5: 'px1',\
                6: 'py1',\
                7: 'px2',\
-               8: 'py2'} 
+               8: 'py2',\
+               9: 'Nd_s'} 
 # apz means apical oxygen pz locating above Cu atom:
 elif pam.Norb==10:
     orb_int = {'d3z2r2': 0,\
@@ -79,7 +83,8 @@ elif pam.Norb==11:
                'pz1':    7,\
                'px2':    8,\
                'py2':    9,\
-               'pz2':    10} 
+               'pz2':    10，\
+               'Nd_s':   11} 
     int_orb = {0: 'd3z2r2',\
                1: 'dx2y2',\
                2: 'dxy',\
@@ -90,7 +95,8 @@ elif pam.Norb==11:
                7: 'pz1',\
                8: 'px2',\
                9: 'py2',\
-              10: 'pz2'} 
+              10: 'pz2',\
+              11: 'Nd_s'} 
 spin_int = {'up': 1,\
             'dn': 0}
 int_spin = {1: 'up',\
@@ -108,6 +114,7 @@ def get_unit_cell_rep(x,y,z):
     -------
     orbital: One of the following strings 'dx2y2', 
             'Ox1', 'Ox2', 'Oy1', 'Oy2', 'NotOnSublattice'
+             Nd orbs located in the center of Lieb lattice of Ni-O
     '''
     # Note that x, y, z can be negative
     if x==0 and y==0 and z==0:
@@ -118,5 +125,7 @@ def get_unit_cell_rep(x,y,z):
         return pam.O1_orbs
     elif abs(x) % 2 == 0 and abs(y) % 2 == 1 and z==0:
         return pam.O2_orbs
+    elif abs(x) % 2 == 1 and abs(y) % 2 == 1 and z==0:
+        return pam.Nd_orbs
     else:
         return ['NotOnSublattice']
