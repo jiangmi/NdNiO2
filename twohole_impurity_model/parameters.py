@@ -2,7 +2,7 @@ import math
 import numpy as np
 M_PI = math.pi
 
-Mc = 16
+Mc = 15
 ed = {'d3z2r2': -0.45,\
       'dx2y2' : -1.77,\
       'dxy'   : -0.4,\
@@ -27,13 +27,14 @@ C = 0.58
 
 # IMPORTANT: keep all hoppings below positive to avoid confusion
 #            hopping signs are considered in dispersion separately
-Norb = 9
-if Norb==3 or Norb==7:
+Norb = 8
+if Norb==3 or Norb==8:
     #tpds = [0.00001]  # for check_CuO4_eigenvalues.py
     tpds = np.linspace(1.5, 1.5, num=1, endpoint=True) #[0.25]
-    #tpds = [0.000001]
-    tpps = [0.55]
-elif Norb==9 or Norb==10 or Norb==11:    
+    tpds = [0.01]
+    tpps = [0.01]
+    tNiNds = [0.2]
+elif Norb==10 or Norb==11 or Norb==12:    
     # pdp = sqrt(3)/4*pds so that tpd(b2)=tpd(b1)/2: see Eskes's thesis and 1990 paper
     # the values of pds and pdp between papers have factor of 2 difference
     # here use Eskes's thesis Page 4
@@ -43,6 +44,7 @@ elif Norb==9 or Norb==10 or Norb==11:
     pdps = np.asarray(pdss)*np.sqrt(3)/4.
     #pdss = [1.5]
     #pdps = [0.7]
+    tNiNds = [0.0]
     #------------------------------------------------------------------------------
     # note that tpp ~ (pps+ppp)/2
     # because 3 or 7 orbital bandwidth is 8*tpp while 9 orbital has 4*(pps+ppp)
@@ -65,7 +67,7 @@ if_find_lowpeak = 0
 if if_find_lowpeak==1:
     peak_mode = 'lowest_peak' # 'lowest_peak' or 'highest_peak' or 'lowest_peak_intensity'
     if_write_lowpeak_ep_tpd = 1
-if_write_Aw = 1
+if_write_Aw = 0
 if_savefig_Aw = 1
 
 if_get_ground_state = 1
@@ -82,35 +84,38 @@ if Norb==3:
 else:
     Cu_orbs = ['dx2y2','dxy','dxz','dyz','d3z2r2']
     #Cu_orbs = ['dx2y2','d3z2r2']
+    Nd_orbs = ['Nd_s']
     
-if Norb==3 or Norb==7:
+if Norb==3 or Norb==8:
     O1_orbs  = ['px']
     O2_orbs  = ['py']
-    ap_orbs  = []
-elif Norb==9:
-    O1_orbs  = ['px1','py1']
-    O2_orbs  = ['px2','py2']
     ap_orbs  = []
 elif Norb==10:
     O1_orbs  = ['px1','py1']
     O2_orbs  = ['px2','py2']
-    ap_orbs  = ['apz']
+    ap_orbs  = []
 elif Norb==11:
+    O1_orbs  = ['px1','py1']
+    O2_orbs  = ['px2','py2']
+    ap_orbs  = ['apz']
+elif Norb==12:
     O1_orbs  = ['px1','py1','pz1']
     O2_orbs  = ['px2','py2','pz2']
     ap_orbs  = []
 O_orbs = O1_orbs + O2_orbs + ap_orbs
 # sort the list to facilliate the setup of interaction matrix elements
 Cu_orbs.sort()
+Nd_orbs.sort()
 O1_orbs.sort()
 O2_orbs.sort()
 ap_orbs.sort()
 O_orbs.sort()
 print "Cu_orbs = ", Cu_orbs
+print "Nd_orbs = ", Nd_orbs
 print "O1_orbs = ",  O1_orbs
 print "O2_orbs = ",  O2_orbs
 print "ap_orbs = ",  ap_orbs
-orbs = Cu_orbs + O_orbs
+orbs = Cu_orbs + Nd_orbs + O_orbs 
 #assert(len(orbs)==Norb)
 # ======================================================================
 # Below for interaction matrix

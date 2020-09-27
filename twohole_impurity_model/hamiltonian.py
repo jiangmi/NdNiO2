@@ -2,6 +2,9 @@
 Functions for constructing individual parts of the Hamiltonian. The 
 matrices still need to be multiplied with the appropriate coupling 
 constants t_pd, t_pp, etc..
+
+If adding into diagonal Nd atoms (with only s-like orbital as approximation)
+then only dxy hops with it
 '''
 import parameters as pam
 import lattice as lat
@@ -27,18 +30,20 @@ directions_to_vecs = {'UR': (1,1,0),\
                       'mzD': (0,-1,-1)}
 tpp_nn_hop_dir = ['UR','UL','DL','DR']
 
-def set_tpd_tpp(Norb,tpd,tpp,pds,pdp,pps,ppp):
+def set_tpd_tpp_tNiNd(Norb,tpd,tpp,tNiNd,pds,pdp,pps,ppp):
     # dxz and dyz has no tpd hopping
     if pam.Norb==3:
         tpd_nn_hop_dir = {'dx2y2' : ['L','R','U','D'],\
                           'px'    : ['L','R'],\
                           'py'    : ['U','D']}
-    elif pam.Norb==7:
+    elif pam.Norb==8:
         tpd_nn_hop_dir = {'d3z2r2': ['L','R','U','D'],\
                           'dx2y2' : ['L','R','U','D'],\
                           'px'    : ['L','R'],\
                           'py'    : ['U','D']}
-    elif pam.Norb==9 or pam.Norb==10:
+        tNiNd_nn_hop_dir = {'dxy' : ['UR','UL','DL','DR'],\
+                            'Nd_s': ['UR','UL','DL','DR']}
+    elif pam.Norb==10 or pam.Norb==11:
         tpd_nn_hop_dir = {'d3z2r2': ['L','R','U','D'],\
                           'dx2y2' : ['L','R','U','D'],\
                           'dxy'   : ['L','R','U','D'],\
@@ -46,7 +51,9 @@ def set_tpd_tpp(Norb,tpd,tpp,pds,pdp,pps,ppp):
                           'py1'   : ['L','R'],\
                           'px2'   : ['U','D'],\
                           'py2'   : ['U','D']}
-    elif pam.Norb==11:
+        tNiNd_nn_hop_dir = {'dxy' : ['UR','UL','DL','DR'],\
+                            'Nd_s': ['UR','UL','DL','DR']}
+    elif pam.Norb==12:
         tpd_nn_hop_dir = {'d3z2r2': ['L','R','U','D'],\
                           'dx2y2' : ['L','R','U','D'],\
                           'dxy'   : ['L','R','U','D'],\
@@ -58,11 +65,13 @@ def set_tpd_tpp(Norb,tpd,tpp,pds,pdp,pps,ppp):
                           'px2'   : ['U','D'],\
                           'py2'   : ['U','D'],\
                           'pz2'   : ['U','D']}
+        tNiNd_nn_hop_dir = {'dxy' : ['UR','UL','DL','DR'],\
+                            'Nd_s': ['UR','UL','DL','DR']}
     if pam.Norb==3:
         if_tpd_nn_hop = {'dx2y2' : 1,\
                          'px'    : 1,\
                          'py'    : 1}
-    elif pam.Norb==7:
+    elif pam.Norb==8:
         if_tpd_nn_hop = {'d3z2r2': 1,\
                          'dx2y2' : 1,\
                          'dxy'   : 0,\
@@ -70,7 +79,13 @@ def set_tpd_tpp(Norb,tpd,tpp,pds,pdp,pps,ppp):
                          'dyz'   : 0,\
                          'px'    : 1,\
                          'py'    : 1}
-    elif pam.Norb==9:
+        if_tNiNd_nn_hop = {'d3z2r2': 0,\
+                           'dx2y2' : 0,\
+                           'dxy'   : 1,\
+                           'dxz'   : 0,\
+                           'dyz'   : 0,\
+                           'Nd_s'  : 1}
+    elif pam.Norb==10:
         if_tpd_nn_hop = {'d3z2r2': 1,\
                          'dx2y2' : 1,\
                          'dxy'   : 1,\
@@ -80,7 +95,13 @@ def set_tpd_tpp(Norb,tpd,tpp,pds,pdp,pps,ppp):
                          'py1'   : 1,\
                          'px2'   : 1,\
                          'py2'   : 1}
-    elif pam.Norb==10:
+        if_tNiNd_nn_hop = {'d3z2r2': 0,\
+                           'dx2y2' : 0,\
+                           'dxy'   : 1,\
+                           'dxz'   : 0,\
+                           'dyz'   : 0,\
+                           'Nd_s'  : 1}
+    elif pam.Norb==11:
         if_tpd_nn_hop = {'d3z2r2': 1,\
                          'dx2y2' : 1,\
                          'dxy'   : 1,\
@@ -91,7 +112,13 @@ def set_tpd_tpp(Norb,tpd,tpp,pds,pdp,pps,ppp):
                          'py1'   : 1,\
                          'px2'   : 1,\
                          'py2'   : 1}
-    elif pam.Norb==11:
+        if_tNiNd_nn_hop = {'d3z2r2': 0,\
+                           'dx2y2' : 0,\
+                           'dxy'   : 1,\
+                           'dxz'   : 0,\
+                           'dyz'   : 0,\
+                           'Nd_s'  : 1}
+    elif pam.Norb==12:
         if_tpd_nn_hop = {'d3z2r2': 1,\
                          'dx2y2' : 1,\
                          'dxy'   : 1,\
@@ -103,6 +130,12 @@ def set_tpd_tpp(Norb,tpd,tpp,pds,pdp,pps,ppp):
                          'px2'   : 1,\
                          'py2'   : 1,\
                          'pz2'   : 1}
+        if_tNiNd_nn_hop = {'d3z2r2': 0,\
+                           'dx2y2' : 0,\
+                           'dxy'   : 1,\
+                           'dxz'   : 0,\
+                           'dyz'   : 0,\
+                           'Nd_s'  : 1}
     # hole language: sign convention followed from Fig 1 in H.Eskes's PRB 1990 paper
     #                or PRB 2016: Characterizing the three-orbital Hubbard model...
     if pam.Norb==3:
@@ -115,7 +148,7 @@ def set_tpd_tpp(Norb,tpd,tpp,pds,pdp,pps,ppp):
                           ('px','L','dx2y2'):  -tpd,\
                           ('py','D','dx2y2'):   tpd,\
                           ('py','U','dx2y2'):  -tpd}
-    elif pam.Norb==7:
+    elif pam.Norb==8:
         # d3z2r2 has -,+,- sign structure so that it is positive in x-y plane
         # google results shows +,-,+ sign, but that induces abnormal spectra
         tpd_nn_hop_fac = {('d3z2r2','L','px'):  tpd/np.sqrt(3),\
@@ -135,7 +168,12 @@ def set_tpd_tpp(Norb,tpd,tpp,pds,pdp,pps,ppp):
                           ('px','L','dx2y2'):  -tpd,\
                           ('py','D','dx2y2'):   tpd,\
                           ('py','U','dx2y2'):  -tpd}
-    elif pam.Norb==9 or pam.Norb==10:
+        # only dxy hops to Nd s-like orbital
+        tNiNd_nn_hop_fac = {('Nd_s','UR','dxy'):  tNiNd,\
+                            ('Nd_s','UL','dxy'): -tNiNd,\
+                            ('Nd_s','DL','dxy'):  tNiNd,\
+                            ('Nd_s','DR','dxy'): -tNiNd}
+    elif pam.Norb==10 or pam.Norb==11:
         c = np.sqrt(3)/2.0
         tpd_nn_hop_fac = {('d3z2r2','L','px1'):  pds/2.0,\
                           ('d3z2r2','R','px1'): -pds/2.0,\
@@ -162,7 +200,12 @@ def set_tpd_tpp(Norb,tpd,tpp,pds,pdp,pps,ppp):
                           ('py1','L','dxy'):   pdp,\
                           ('px2','D','dxy'):   pdp,\
                           ('px2','U','dxy'):  -pdp}
-    elif pam.Norb==11:
+        # only dxy hops to Nd s-like orbital
+        tNiNd_nn_hop_fac = {('Nd_s','UR','dxy'):  tNiNd,\
+                            ('Nd_s','UL','dxy'): -tNiNd,\
+                            ('Nd_s','DL','dxy'):  tNiNd,\
+                            ('Nd_s','DR','dxy'): -tNiNd}
+    elif pam.Norb==12:
         c = np.sqrt(3)/2.0
         tpd_nn_hop_fac = {('d3z2r2','L','px1'):  pds/2.0,\
                           ('d3z2r2','R','px1'): -pds/2.0,\
@@ -197,13 +240,18 @@ def set_tpd_tpp(Norb,tpd,tpp,pds,pdp,pps,ppp):
                           ('pz1','L','dxz'):   pdp,\
                           ('pz2','D','dyz'):   pdp,\
                           ('pz2','U','dyz'):  -pdp}
+        # only dxy hops to Nd s-like orbital
+        tNiNd_nn_hop_fac = {('Nd_s','UR','dxy'):  tNiNd,\
+                            ('Nd_s','UL','dxy'): -tNiNd,\
+                            ('Nd_s','DL','dxy'):  tNiNd,\
+                            ('Nd_s','DR','dxy'): -tNiNd}
     ########################## tpp below ##############################
-    if pam.Norb==3 or pam.Norb==7:
+    if pam.Norb==3 or pam.Norb==8:
         tpp_nn_hop_fac = {('UR','px','py'): -tpp,\
                           ('UL','px','py'):  tpp,\
                           ('DL','px','py'): -tpp,\
                           ('DR','px','py'):  tpp}
-    elif pam.Norb==9 or pam.Norb==10 or pam.Norb==11:
+    elif pam.Norb==10 or pam.Norb==11 or pam.Norb==12:
         tpp_nn_hop_fac = {('UR','px1','px2'):  0.5*(ppp-pps),\
                           ('UL','px1','px2'):  0.5*(ppp-pps),\
                           ('DL','px1','px2'):  0.5*(ppp-pps),\
@@ -221,7 +269,7 @@ def set_tpd_tpp(Norb,tpd,tpp,pds,pdp,pps,ppp):
                           ('DL','px2','py1'): -0.5*(ppp+pps),\
                           ('DR','px2','py1'):  0.5*(ppp+pps)}
     ########################## apical pz below ##############################
-    if pam.Norb==10:
+    if pam.Norb==11:
         if_apz2p_hop = {'d3z2r2': 0,\
                         'dx2y2' : 0,\
                         'dxy'   : 0,\
@@ -249,7 +297,9 @@ def set_tpd_tpp(Norb,tpd,tpp,pds,pdp,pps,ppp):
         if_apz2p_hop  = []
         apz2p_hop_fac = []
         
-    return tpd_nn_hop_dir, if_tpd_nn_hop, tpd_nn_hop_fac, tpp_nn_hop_fac, apz2p_hop_dir, if_apz2p_hop, apz2p_hop_fac
+    return tpd_nn_hop_dir, if_tpd_nn_hop, tpd_nn_hop_fac, \
+           tNiNd_nn_hop_dir, if_tNiNd_nn_hop, tNiNd_nn_hop_fac, \
+           tpp_nn_hop_fac, apz2p_hop_dir, if_apz2p_hop, apz2p_hop_fac
 
 def get_interaction_mat(A, sym):
     '''
@@ -454,67 +504,171 @@ def create_tpd_nn_matrix(VS,tpd_nn_hop_dir, if_tpd_nn_hop, tpd_nn_hop_fac):
         x2, y2, z2 = start_state['hole2_coord']
 
         # hole 1 hops: some d-orbitals might have no tpd
-        if if_tpd_nn_hop[orb1] == 1:
-            for dir_ in tpd_nn_hop_dir[orb1]:
-                vx, vy, vz = directions_to_vecs[dir_]
-                orbs1 = lat.get_unit_cell_rep(x1+vx, y1+vy, z1+vz)
-                if orbs1 == ['NotOnSublattice']:
-                    continue
+        if orb1 not in pam.Nd_orbs:
+            if if_tpd_nn_hop[orb1] == 1:
+                for dir_ in tpd_nn_hop_dir[orb1]:
+                    vx, vy, vz = directions_to_vecs[dir_]
+                    orbs1 = lat.get_unit_cell_rep(x1+vx, y1+vy, z1+vz)
+                    if orbs1 == ['NotOnSublattice']:
+                        continue
 
-                # consider t_pd for all cases; when up hole hops, dn hole should not change orb
-                for o1 in orbs1:
-                    if if_tpd_nn_hop[o1] == 0:
-                        continue
-                    # consider Pauli principle
-                    if s1==s2 and o1==orb2 and (x1+vx,y1+vy,z1+vz)==(x2,y2,z2):
-                        continue
-                                    
-                    if vs.check_in_vs_condition(x1+vx,y1+vy,x2,y2):
-                        tmp_state = vs.create_state(s1,o1,x1+vx,y1+vy,z1+vz,s2,orb2,x2,y2,z2)
-                        new_state,ph = vs.make_state_canonical(tmp_state)
-                                    
-                        s1n = new_state['hole1_spin']
-                        s2n = new_state['hole2_spin']
-                        orb1n = new_state['hole1_orb']
-                        orb2n = new_state['hole2_orb']
-                        x1n, y1n, z1n = new_state['hole1_coord']
-                        x2n, y2n, z2n = new_state['hole2_coord']
-                       # print x1,y1,orb1,s1,x2,y2,orb2,s2,'tpd hops to',x1n, y1n,orb1n,s1n,x2n, y2n,orb2n,s2n
-        
-                        o12 = tuple([orb1, dir_, o1])
-                        if o12 in tpd_orbs:
-                            set_matrix_element(row,col,data,new_state,i,VS,tpd_nn_hop_fac[o12]*ph)
+                    # consider t_pd for all cases; when up hole hops, dn hole should not change orb
+                    for o1 in orbs1:
+                        if if_tpd_nn_hop[o1] == 0:
+                            continue
+                        # consider Pauli principle
+                        if s1==s2 and o1==orb2 and (x1+vx,y1+vy,z1+vz)==(x2,y2,z2):
+                            continue
+
+                        if vs.check_in_vs_condition(x1+vx,y1+vy,x2,y2):
+                            tmp_state = vs.create_state(s1,o1,x1+vx,y1+vy,z1+vz,s2,orb2,x2,y2,z2)
+                            new_state,ph = vs.make_state_canonical(tmp_state)
+
+                            s1n = new_state['hole1_spin']
+                            s2n = new_state['hole2_spin']
+                            orb1n = new_state['hole1_orb']
+                            orb2n = new_state['hole2_orb']
+                            x1n, y1n, z1n = new_state['hole1_coord']
+                            x2n, y2n, z2n = new_state['hole2_coord']
+                           # print x1,y1,orb1,s1,x2,y2,orb2,s2,'tpd hops to',x1n, y1n,orb1n,s1n,x2n, y2n,orb2n,s2n
+
+                            o12 = tuple([orb1, dir_, o1])
+                            if o12 in tpd_orbs:
+                                set_matrix_element(row,col,data,new_state,i,VS,tpd_nn_hop_fac[o12]*ph)
 
         # hole 2 hops; some d-orbitals might have no tpd
-        if if_tpd_nn_hop[orb2] == 1:
-            for dir_ in tpd_nn_hop_dir[orb2]:
-                vx, vy, vz = directions_to_vecs[dir_]
-                orbs2 = lat.get_unit_cell_rep(x2+vx, y2+vy, z2+vz)
-                if orbs2 == ['NotOnSublattice']:
-                    continue
-                    
-                for o2 in orbs2:
-                    if if_tpd_nn_hop[o2] == 0:
+        if orb2 not in pam.Nd_orbs:
+            if if_tpd_nn_hop[orb2] == 1:
+                for dir_ in tpd_nn_hop_dir[orb2]:
+                    vx, vy, vz = directions_to_vecs[dir_]
+                    orbs2 = lat.get_unit_cell_rep(x2+vx, y2+vy, z2+vz)
+                    if orbs2 == ['NotOnSublattice']:
                         continue
-                    # consider Pauli principle
-                    if s1==s2 and orb1==o2 and (x1,y1,z1)==(x2+vx, y2+vy, z2+vz):
+
+                    for o2 in orbs2:
+                        if if_tpd_nn_hop[o2] == 0:
+                            continue
+                        # consider Pauli principle
+                        if s1==s2 and orb1==o2 and (x1,y1,z1)==(x2+vx, y2+vy, z2+vz):
+                            continue
+
+                        if vs.check_in_vs_condition(x1,y1,x2+vx,y2+vy):
+                            tmp_state = vs.create_state(s1,orb1,x1,y1,z1,s2,o2,x2+vx,y2+vy,z2+vz)
+                            new_state,ph = vs.make_state_canonical(tmp_state)
+
+                            s1n = new_state['hole1_spin']
+                            s2n = new_state['hole2_spin']
+                            orb1n = new_state['hole1_orb']
+                            orb2n = new_state['hole2_orb']
+                            x1n, y1n, z1n = new_state['hole1_coord']
+                            x2n, y2n, z2n = new_state['hole2_coord']
+                            #print x1,y1,orb1,s1,x2,y2,orb2,s2,'tpd hops to',x1n, y1n,orb1n,s1n,x2n, y2n,orb2n,s2n
+
+                            o12 = tuple([orb2, dir_, o2])
+                            if o12 in tpd_orbs:
+                                set_matrix_element(row,col,data,new_state,i,VS,tpd_nn_hop_fac[o12]*ph)
+
+    row = np.array(row)
+    col = np.array(col)
+    data = np.array(data)
+    
+    # check if hoppings occur within groups of (up,up), (dn,dn), and (up,dn) 
+    assert(check_spin_group(row,col,data,VS)==True)
+    out = sps.coo_matrix((data,(row,col)),shape=(dim,dim))
+    
+    return out
+
+def create_tNiNd_nn_matrix(VS,tNiNd_nn_hop_dir, if_tNiNd_nn_hop, tNiNd_nn_hop_fac):
+    '''
+    Create nearest neighbor (NN) Ni-Nd hopping part of the Hamiltonian
+    '''    
+    print "start create_tNiNd_nn_matrix"
+    print "=========================="
+    
+    dim = VS.dim
+    tNiNd_orbs = tNiNd_nn_hop_fac.keys()
+    data = []
+    row = []
+    col = []
+    for i in xrange(0,dim):
+        start_state = VS.get_state(VS.lookup_tbl[i])
+        
+        # double check which cost some time, might not necessary
+        assert VS.get_uid(start_state) == VS.lookup_tbl[i]
+        
+        s1 = start_state['hole1_spin']
+        s2 = start_state['hole2_spin']
+        orb1 = start_state['hole1_orb']
+        orb2 = start_state['hole2_orb']
+        x1, y1, z1 = start_state['hole1_coord']
+        x2, y2, z2 = start_state['hole2_coord']
+
+        # hole 1 hops: some d-orbitals might have no tNiNd
+        if orb1 not in pam.O_orbs:
+            if if_tNiNd_nn_hop[orb1] == 1:
+                for dir_ in tNiNd_nn_hop_dir[orb1]:
+                    vx, vy, vz = directions_to_vecs[dir_]
+                    orbs1 = lat.get_unit_cell_rep(x1+vx, y1+vy, z1+vz)
+                    if orbs1 == ['NotOnSublattice']:
                         continue
-                            
-                    if vs.check_in_vs_condition(x1,y1,x2+vx,y2+vy):
-                        tmp_state = vs.create_state(s1,orb1,x1,y1,z1,s2,o2,x2+vx,y2+vy,z2+vz)
-                        new_state,ph = vs.make_state_canonical(tmp_state)
-                        
-                        s1n = new_state['hole1_spin']
-                        s2n = new_state['hole2_spin']
-                        orb1n = new_state['hole1_orb']
-                        orb2n = new_state['hole2_orb']
-                        x1n, y1n, z1n = new_state['hole1_coord']
-                        x2n, y2n, z2n = new_state['hole2_coord']
-                        #print x1,y1,orb1,s1,x2,y2,orb2,s2,'tpd hops to',x1n, y1n,orb1n,s1n,x2n, y2n,orb2n,s2n
-                        
-                        o12 = tuple([orb2, dir_, o2])
-                        if o12 in tpd_orbs:
-                            set_matrix_element(row,col,data,new_state,i,VS,tpd_nn_hop_fac[o12]*ph)
+
+                    # consider t_NiNd for all cases; when up hole hops, dn hole should not change orb
+                    for o1 in orbs1:
+                        if if_tNiNd_nn_hop[o1] == 0:
+                            continue
+                        # consider Pauli principle
+                        if s1==s2 and o1==orb2 and (x1+vx,y1+vy,z1+vz)==(x2,y2,z2):
+                            continue
+
+                        if vs.check_in_vs_condition(x1+vx,y1+vy,x2,y2):
+                            tmp_state = vs.create_state(s1,o1,x1+vx,y1+vy,z1+vz,s2,orb2,x2,y2,z2)
+                            new_state,ph = vs.make_state_canonical(tmp_state)
+
+                            s1n = new_state['hole1_spin']
+                            s2n = new_state['hole2_spin']
+                            orb1n = new_state['hole1_orb']
+                            orb2n = new_state['hole2_orb']
+                            x1n, y1n, z1n = new_state['hole1_coord']
+                            x2n, y2n, z2n = new_state['hole2_coord']
+                           # print x1,y1,orb1,s1,x2,y2,orb2,s2,'tpd hops to',x1n, y1n,orb1n,s1n,x2n, y2n,orb2n,s2n
+
+                            o12 = sorted([orb1, dir_, o1])
+                            o12 = tuple(o12)
+                            if o12 in tNiNd_orbs:
+                                set_matrix_element(row,col,data,new_state,i,VS,tNiNd_nn_hop_fac[o12]*ph)
+
+        # hole 2 hops; some d-orbitals might have no tpd
+        if orb2 not in pam.O_orbs:
+            if if_tNiNd_nn_hop[orb2] == 1:
+                for dir_ in tNiNd_nn_hop_dir[orb2]:
+                    vx, vy, vz = directions_to_vecs[dir_]
+                    orbs2 = lat.get_unit_cell_rep(x2+vx, y2+vy, z2+vz)
+                    if orbs2 == ['NotOnSublattice']:
+                        continue
+
+                    for o2 in orbs2:
+                        if if_tNiNd_nn_hop[o2] == 0:
+                            continue
+                        # consider Pauli principle
+                        if s1==s2 and orb1==o2 and (x1,y1,z1)==(x2+vx, y2+vy, z2+vz):
+                            continue
+
+                        if vs.check_in_vs_condition(x1,y1,x2+vx,y2+vy):
+                            tmp_state = vs.create_state(s1,orb1,x1,y1,z1,s2,o2,x2+vx,y2+vy,z2+vz)
+                            new_state,ph = vs.make_state_canonical(tmp_state)
+
+                            s1n = new_state['hole1_spin']
+                            s2n = new_state['hole2_spin']
+                            orb1n = new_state['hole1_orb']
+                            orb2n = new_state['hole2_orb']
+                            x1n, y1n, z1n = new_state['hole1_coord']
+                            x2n, y2n, z2n = new_state['hole2_coord']
+                            #print x1,y1,orb1,s1,x2,y2,orb2,s2,'tpd hops to',x1n, y1n,orb1n,s1n,x2n, y2n,orb2n,s2n
+
+                            o12 = sorted([orb2, dir_, o2])
+                            o12 = tuple(o12)
+                            if o12 in tNiNd_orbs:
+                                set_matrix_element(row,col,data,new_state,i,VS,tNiNd_nn_hop_fac[o12]*ph)
 
     row = np.array(row)
     col = np.array(col)
@@ -745,11 +899,11 @@ def create_edep_diag_matrix(VS,ep):
 
         if orb1 in pam.Cu_orbs: 
             diag_el += pam.ed[orb1]
-        elif orb1 in pam.O_orbs or orb1 in ap_orbs:
+        elif orb1 in pam.O_orbs or orb1 in pam.ap_orbs:
             diag_el += ep
         if orb2 in pam.Cu_orbs: 
             diag_el += pam.ed[orb2]
-        elif orb2 in pam.O_orbs or orb2 in ap_orbs:
+        elif orb2 in pam.O_orbs or orb2 in pam.ap_orbs:
             diag_el += ep
 
         data.append(diag_el); row.append(i); col.append(i)

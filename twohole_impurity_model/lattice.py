@@ -12,7 +12,7 @@ if pam.Norb==3:
     int_orb = {0: 'dx2y2',\
                1: 'px',\
                2: 'py'}
-elif pam.Norb==7:
+elif pam.Norb==8:
     orb_int = {'d3z2r2': 0,\
                'dx2y2':  1,\
                'dxy':    2,\
@@ -29,7 +29,7 @@ elif pam.Norb==7:
                5: 'px',\
                6: 'py',\
                7: 'Nd_s'}
-elif pam.Norb==9:
+elif pam.Norb==10:
     orb_int = {'d3z2r2': 0,\
                'dx2y2':  1,\
                'dxy':    2,\
@@ -51,7 +51,7 @@ elif pam.Norb==9:
                8: 'py2',\
                9: 'Nd_s'} 
 # apz means apical oxygen pz locating above Cu atom:
-elif pam.Norb==10:
+elif pam.Norb==11:
     orb_int = {'d3z2r2': 0,\
                'dx2y2':  1,\
                'dxy':    2,\
@@ -72,7 +72,7 @@ elif pam.Norb==10:
                7: 'py1',\
                8: 'px2',\
                9: 'py2'} 
-elif pam.Norb==11:
+elif pam.Norb==12:
     orb_int = {'d3z2r2': 0,\
                'dx2y2':  1,\
                'dxy':    2,\
@@ -83,7 +83,7 @@ elif pam.Norb==11:
                'pz1':    7,\
                'px2':    8,\
                'py2':    9,\
-               'pz2':    10，\
+               'pz2':    10,\
                'Nd_s':   11} 
     int_orb = {0: 'd3z2r2',\
                1: 'dx2y2',\
