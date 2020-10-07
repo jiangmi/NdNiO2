@@ -20,6 +20,10 @@ directions_to_vecs = {'UR': (1,1,0),\
                       'R': (1,0,0),\
                       'U': (0,1,0),\
                       'D': (0,-1,0),\
+                      'L2': (-2,0,0),\
+                      'R2': (2,0,0),\
+                      'U2': (0,2,0),\
+                      'D2': (0,-2,0),\
                       'pzL': (-1,0,1),\
                       'pzR': (1,0,1),\
                       'pzU': (0,1,1),\
@@ -29,6 +33,7 @@ directions_to_vecs = {'UR': (1,1,0),\
                       'mzU': (0,1,-1),\
                       'mzD': (0,-1,-1)}
 tpp_nn_hop_dir = ['UR','UL','DL','DR']
+tNdNd_nn_hop_dir = ['U2','D2','R2','L2']
 
 def set_tpd_tpp_tNiNd(Norb,tpd,tpp,tNiNd,pds,pdp,pps,ppp):
     # dxz and dyz has no tpd hopping
@@ -696,7 +701,7 @@ def create_tNiNd_nn_matrix(VS, tNiNd_nn_hop_dir, if_tNiNd_nn_hop, tNiNd_nn_hop_f
 
 def create_tpp_nn_matrix(VS,tpp_nn_hop_fac): 
     '''
-    similar to comments in create_tpd_nn_matrix
+    similar to comments in create_tpp_nn_matrix
     '''   
     print "start create_tpp_nn_matrix"
     print "=========================="
@@ -795,6 +800,69 @@ def create_tpp_nn_matrix(VS,tpp_nn_hop_fac):
                             o12 = sorted([orb2, dir_, o2])
                             o12 = tuple(o12)
                             set_matrix_element(row,col,data,new_state,i,VS,tpp_nn_hop_fac[o12]*ph)
+                        
+    row = np.array(row)
+    col = np.array(col)
+    data = np.array(data)
+    
+    # check if hoppings occur within groups of (up,up), (dn,dn), and (up,dn) 
+    #assert(check_spin_group(row,col,data,VS)==True)
+    out = sps.coo_matrix((data,(row,col)),shape=(dim,dim))
+
+    return out
+
+def create_tNdNd_nn_matrix(VS,tNdNd): 
+    '''
+    similar to comments in create_tNdNd_nn_matrix
+    '''   
+    print "start create_tNdNd_nn_matrix"
+    print "=========================="
+    
+    dim = VS.dim
+    data = []
+    row = []
+    col = []
+    for i in xrange(0,dim):
+        start_state = VS.get_state(VS.lookup_tbl[i])
+        
+        if start_state['type'] == 'one_hole_one_eh':
+            se = start_state['e_spin']
+            orbe = start_state['e_orb']
+            xe, ye, ze = start_state['e_coord']                
+            s1 = start_state['hole1_spin']
+            s2 = start_state['hole2_spin']
+            orb1 = start_state['hole1_orb']
+            orb2 = start_state['hole2_orb']
+            x1, y1, z1 = start_state['hole1_coord']
+            x2, y2, z2 = start_state['hole2_coord']
+
+            # Nd electron hops 
+            for dir_ in tNdNd_nn_hop_dir:
+                vx, vy, vz = directions_to_vecs[dir_]
+                orbse = lat.get_unit_cell_rep(xe+vx, ye+vy, ze+vz)
+                if orbse != pam.Nd_orbs:
+                    continue
+
+                for o1 in orbse:
+                    if vs.check_in_vs_condition(xe+vx,ye+vy,x1,y1) and vs.check_in_vs_condition(xe+vx,ye+vy,x2,y2):
+                        tmp_state = vs.create_one_hole_one_eh_state(se,o1,xe+vx,ye+vy,ze+vz, \
+                                                                    s1,orb1,x1,y1,z1,s2,orb2,x2,y2,z2)
+                        new_state,ph = vs.make_state_canonical(tmp_state)
+                        
+                        #print i, se,orbe,xe,ye,ze,s1,orb1,x1,y1,z1,s2,orb2,x2,y2,z2
+                        #print 'candidate state', se,o1,xe+vx,ye+vy,ze+vz,s1,orb1,x1,y1,z1,s2,orb2,x2,y2,z2
+                        #tse = new_state['e_spin']
+                        #torbe = new_state['e_orb']
+                        #txe, tye, tze = new_state['e_coord']                
+                        #ts1 = new_state['hole1_spin']
+                        #ts2 = new_state['hole2_spin']
+                        #torb1 = new_state['hole1_orb']
+                        #torb2 = new_state['hole2_orb']
+                        #tx1, ty1, tz1 = new_state['hole1_coord']
+                        #tx2, ty2, tz2 = new_state['hole2_coord']
+                        #print 'new state', tse,torbe,txe,tye,tze,ts1,torb1,tx1,ty1,tz1,ts2,torb2,tx2,ty2,tz2
+            
+                        set_matrix_element(row,col,data,new_state,i,VS,tNdNd*ph)
                         
     row = np.array(row)
     col = np.array(col)
