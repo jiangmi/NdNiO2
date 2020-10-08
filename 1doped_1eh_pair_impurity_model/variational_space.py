@@ -289,6 +289,11 @@ class VariationalSpace:
                                             if orb2s==['NotOnSublattice'] or orb2s==pam.Nd_orbs:
                                                 continue
 
+                                            if not (check_in_vs_condition(ux,uy,vx,vy) and \
+                                                check_in_vs_condition(ux,uy,wx,wy) and \
+                                                check_in_vs_condition(vx,vy,wx,wy)):
+                                                continue
+                                                        
                                             for orbe in orbes:
                                                 for orb1 in orb1s:
                                                     for orb2 in orb2s:
@@ -319,11 +324,9 @@ class VariationalSpace:
                                                                         and ux==wx and uy==wy and uz==wz:
                                                                         continue 
 
-                                                                    if check_in_vs_condition(ux,uy,vx,vy) and \
-                                                                        check_in_vs_condition(ux,uy,wx,wy) and \
-                                                                        check_in_vs_condition(vx,vy,wx,wy):
-                                                                        state = create_one_hole_one_eh_state(se,orbe,ux,uy,uz,s1,orb1,vx,vy,vz,s2,orb2,wx,wy,wz)
-                                                                        canonical_state,_ = make_state_canonical(state)
+                                                                    state = create_one_hole_one_eh_state(se,orbe,ux,uy,uz,\
+                                                                                                         s1,orb1,vx,vy,vz,s2,orb2,wx,wy,wz)
+                                                                    canonical_state,_ = make_state_canonical(state)
 
                                                                     if self.filter_func(canonical_state):
                                                                         uid = self.get_uid(canonical_state)
