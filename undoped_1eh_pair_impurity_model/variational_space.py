@@ -102,7 +102,7 @@ class VariationalSpace:
         self.lookup_tbl = self.create_lookup_tbl()
         self.dim = len(self.lookup_tbl)
         print "VS.dim = ", self.dim
-        #self.print_VS()
+        self.print_VS()
 
     def print_VS(self):
         for i in xrange(0,self.dim):
@@ -168,7 +168,7 @@ class VariationalSpace:
 
                                 for orb1 in orb1s:
                                     for orb2 in orb2s:
-                                        for s in ['up','dn']:
+                                        for s in ['up']:#,'dn']:
                                             state = create_one_eh_state(s,orb1,ux,uy,uz,orb2,vx,vy,vz)
 
                                             if self.filter_func(state):
