@@ -137,7 +137,7 @@ def create_singlet_triplet_basis_change_matrix(VS,d_double):
 
                         # get state as (e1e1 +- e2e2)/sqrt(2) for A and B sym separately 
                         # instead of e1e1 and e2e2
-                        if orb1!='dxz' and orb1!='dyz':
+                        if orb1 not in ['dxz','dyz']:
                             data.append(np.sqrt(2.0));  row.append(i); col.append(i)
                             S_val[i]  = 0
                             Sz_val[i] = 0

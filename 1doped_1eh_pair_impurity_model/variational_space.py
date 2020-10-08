@@ -210,7 +210,7 @@ class VariationalSpace:
                 s = state['spin']
                 o = state['hole_orb']
                 x,y,z = state['hole_coord']
-                print 'no_eh state', i, s,o,x,y,z
+                print 'no_eh state', i, s,o,x,y
                 
             elif state['type'] == 'one_hole_one_eh':  
                 se = state['e_spin']
@@ -222,7 +222,7 @@ class VariationalSpace:
                 orb2 = state['hole2_orb']
                 x1, y1, z1 = state['hole1_coord']
                 x2, y2, z2 = state['hole2_coord']
-                print 'one_eh state', i, se,orbe,xe,ye,ze,s1,orb1,x1,y1,z1,s2,orb2,x2,y2,z2
+                print 'one_eh state', i, se,orbe,xe,ye,s1,orb1,x1,y1,s2,orb2,x2,y2
                 
     def create_lookup_tbl(self):
         '''

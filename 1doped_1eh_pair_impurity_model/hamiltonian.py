@@ -516,18 +516,20 @@ def create_tpd_nn_matrix(VS, tpd_nn_hop_dir, if_tpd_nn_hop, tpd_nn_hop_fac):
                     if orbs1 == ['NotOnSublattice'] or orbs1==pam.Nd_orbs:
                         continue
 
+                    if not vs.check_in_vs_condition(x1+vx,y1+vy,0,0):
+                        continue
+                        
                     # consider t_pd for all cases
                     for o1 in orbs1:
                         if if_tpd_nn_hop[o1] == 0:
                             continue
 
-                        if vs.check_in_vs_condition(x1+vx,y1+vy,0,0):
-                            tmp_state = vs.create_one_hole_no_eh_state(s1,o1,x1+vx,y1+vy,z1+vz)
-                            new_state,ph = vs.make_state_canonical(tmp_state)
+                        tmp_state = vs.create_one_hole_no_eh_state(s1,o1,x1+vx,y1+vy,z1+vz)
+                        new_state,ph = vs.make_state_canonical(tmp_state)
 
-                            o12 = tuple([orb1, dir_, o1])
-                            if o12 in tpd_orbs:
-                                set_matrix_element(row,col,data,new_state,i,VS,tpd_nn_hop_fac[o12]*ph)
+                        o12 = tuple([orb1, dir_, o1])
+                        if o12 in tpd_orbs:
+                            set_matrix_element(row,col,data,new_state,i,VS,tpd_nn_hop_fac[o12]*ph)
           
         if start_state['type'] == 'one_hole_one_eh':
             se = start_state['e_spin']
@@ -548,6 +550,9 @@ def create_tpd_nn_matrix(VS, tpd_nn_hop_dir, if_tpd_nn_hop, tpd_nn_hop_fac):
                     if orbs1 == ['NotOnSublattice'] or orbs1==pam.Nd_orbs:
                         continue
 
+                    if not vs.check_in_vs_condition(x1+vx,y1+vy,x2,y2):
+                        continue
+                        
                     # consider t_pd for all cases; when up hole hops, dn hole should not change orb
                     for o1 in orbs1:
                         if if_tpd_nn_hop[o1] == 0:
@@ -556,14 +561,13 @@ def create_tpd_nn_matrix(VS, tpd_nn_hop_dir, if_tpd_nn_hop, tpd_nn_hop_fac):
                         if s1==s2 and o1==orb2 and (x1+vx,y1+vy,z1+vz)==(x2,y2,z2):
                             continue
 
-                        if vs.check_in_vs_condition(x1+vx,y1+vy,x2,y2):
-                            tmp_state = vs.create_one_hole_one_eh_state(se,orbe,xe,ye,ze, \
-                                                                        s1,o1,x1+vx,y1+vy,z1+vz,s2,orb2,x2,y2,z2)
-                            new_state,ph = vs.make_state_canonical(tmp_state)
+                        tmp_state = vs.create_one_hole_one_eh_state(se,orbe,xe,ye,ze, \
+                                                                    s1,o1,x1+vx,y1+vy,z1+vz,s2,orb2,x2,y2,z2)
+                        new_state,ph = vs.make_state_canonical(tmp_state)
 
-                            o12 = tuple([orb1, dir_, o1])
-                            if o12 in tpd_orbs:
-                                set_matrix_element(row,col,data,new_state,i,VS,tpd_nn_hop_fac[o12]*ph)
+                        o12 = tuple([orb1, dir_, o1])
+                        if o12 in tpd_orbs:
+                            set_matrix_element(row,col,data,new_state,i,VS,tpd_nn_hop_fac[o12]*ph)
 
             # hole 2 hops; some d-orbitals might have no tpd
             if if_tpd_nn_hop[orb2] == 1:
@@ -573,6 +577,9 @@ def create_tpd_nn_matrix(VS, tpd_nn_hop_dir, if_tpd_nn_hop, tpd_nn_hop_fac):
                     if orbs2 == ['NotOnSublattice'] or orbs2==pam.Nd_orbs:
                         continue
 
+                    if not vs.check_in_vs_condition(x1,y1,x2+vx,y2+vy):
+                        continue
+                        
                     for o2 in orbs2:
                         if if_tpd_nn_hop[o2] == 0:
                             continue
@@ -580,14 +587,13 @@ def create_tpd_nn_matrix(VS, tpd_nn_hop_dir, if_tpd_nn_hop, tpd_nn_hop_fac):
                         if s1==s2 and orb1==o2 and (x1,y1,z1)==(x2+vx, y2+vy, z2+vz):
                             continue
 
-                        if vs.check_in_vs_condition(x1,y1,x2+vx,y2+vy):
-                            tmp_state = vs.create_one_hole_one_eh_state(se,orbe,xe,ye,ze, \
-                                                                        s1,orb1,x1,y1,z1,s2,o2,x2+vx,y2+vy,z2+vz)
-                            new_state,ph = vs.make_state_canonical(tmp_state)
+                        tmp_state = vs.create_one_hole_one_eh_state(se,orbe,xe,ye,ze, \
+                                                                    s1,orb1,x1,y1,z1,s2,o2,x2+vx,y2+vy,z2+vz)
+                        new_state,ph = vs.make_state_canonical(tmp_state)
 
-                            o12 = tuple([orb2, dir_, o2])
-                            if o12 in tpd_orbs:
-                                set_matrix_element(row,col,data,new_state,i,VS,tpd_nn_hop_fac[o12]*ph)
+                        o12 = tuple([orb2, dir_, o2])
+                        if o12 in tpd_orbs:
+                            set_matrix_element(row,col,data,new_state,i,VS,tpd_nn_hop_fac[o12]*ph)
 
     row = np.array(row)
     col = np.array(col)
@@ -728,15 +734,17 @@ def create_tpp_nn_matrix(VS,tpp_nn_hop_fac):
                     if orbs1!=pam.O_orbs:
                         continue
 
+                    if not vs.check_in_vs_condition(x1+vx,y1+vy,0,0): 
+                        continue
+                        
                     for o1 in orbs1:
                         if o1=='pz1' or o1=='pz2':
                             continue
-
-                        if vs.check_in_vs_condition(x1+vx,y1+vy,0,0):        
-                            new_state = vs.create_one_hole_no_eh_state(s1,o1,x1+vx, y1+vy, z1+vz)
-                            o12 = sorted([orb1, dir_, o1])
-                            o12 = tuple(o12)
-                            set_matrix_element(row,col,data,new_state,i,VS,tpp_nn_hop_fac[o12])
+      
+                        new_state = vs.create_one_hole_no_eh_state(s1,o1,x1+vx, y1+vy, z1+vz)
+                        o12 = sorted([orb1, dir_, o1])
+                        o12 = tuple(o12)
+                        set_matrix_element(row,col,data,new_state,i,VS,tpp_nn_hop_fac[o12])
           
         if start_state['type'] == 'one_hole_one_eh':
             se = start_state['e_spin']
@@ -757,6 +765,9 @@ def create_tpp_nn_matrix(VS,tpp_nn_hop_fac):
                     if orbs1 != pam.O_orbs:
                         continue
 
+                    if not vs.check_in_vs_condition(x1+vx,y1+vy,x2,y2):
+                        continue
+                        
                     # consider t_pp for all cases; when one hole hops, the other hole should not change orb
                     for o1 in orbs1:
                         if o1=='pz1' or o1=='pz2':
@@ -766,14 +777,13 @@ def create_tpp_nn_matrix(VS,tpp_nn_hop_fac):
                         if s1==s2 and o1==orb2 and (x1+vx,y1+vy,z1+vz)==(x2,y2,z2):
                             continue
 
-                        if vs.check_in_vs_condition(x1+vx,y1+vy,x2,y2):
-                            tmp_state = vs.create_one_hole_one_eh_state(se,orbe,xe,ye,ze, \
-                                                                        s1,o1,x1+vx,y1+vy,z1+vz,s2,orb2,x2,y2,z2)
-                            new_state,ph = vs.make_state_canonical(tmp_state)
+                        tmp_state = vs.create_one_hole_one_eh_state(se,orbe,xe,ye,ze, \
+                                                                    s1,o1,x1+vx,y1+vy,z1+vz,s2,orb2,x2,y2,z2)
+                        new_state,ph = vs.make_state_canonical(tmp_state)
 
-                            o12 = sorted([orb1, dir_, o1])
-                            o12 = tuple(o12)
-                            set_matrix_element(row,col,data,new_state,i,VS,tpp_nn_hop_fac[o12]*ph)
+                        o12 = sorted([orb1, dir_, o1])
+                        o12 = tuple(o12)
+                        set_matrix_element(row,col,data,new_state,i,VS,tpp_nn_hop_fac[o12]*ph)
 
             # hole 2 hops, only p-orbitals has t_pp 
             if orb2 in pam.O_orbs and orb2 not in pam.ap_orbs and orb2!='pz1' and orb2!='pz2':
@@ -784,6 +794,9 @@ def create_tpp_nn_matrix(VS,tpp_nn_hop_fac):
                     if orbs2!= pam.O_orbs:
                         continue
 
+                    if not vs.check_in_vs_condition(x1,y1,x2+vx,y2+vy): 
+                        continue
+                        
                     for o2 in orbs2:
                         if o2=='pz1' or o2=='pz2':
                             continue
@@ -791,15 +804,14 @@ def create_tpp_nn_matrix(VS,tpp_nn_hop_fac):
                         # consider Pauli principle
                         if s1==s2 and orb1==o2 and (x1,y1,z1)==(x2+vx, y2+vy, z2+vz):
                             continue
+  
+                        tmp_state = vs.create_one_hole_one_eh_state(se,orbe,xe,ye,ze, \
+                                                                    s1,orb1,x1,y1,z1,s2,o2,x2+vx,y2+vy,z2+vz)
+                        new_state,ph = vs.make_state_canonical(tmp_state)
 
-                        if vs.check_in_vs_condition(x1,y1,x2+vx,y2+vy):        
-                            tmp_state = vs.create_one_hole_one_eh_state(se,orbe,xe,ye,ze, \
-                                                                        s1,orb1,x1,y1,z1,s2,o2,x2+vx,y2+vy,z2+vz)
-                            new_state,ph = vs.make_state_canonical(tmp_state)
-
-                            o12 = sorted([orb2, dir_, o2])
-                            o12 = tuple(o12)
-                            set_matrix_element(row,col,data,new_state,i,VS,tpp_nn_hop_fac[o12]*ph)
+                        o12 = sorted([orb2, dir_, o2])
+                        o12 = tuple(o12)
+                        set_matrix_element(row,col,data,new_state,i,VS,tpp_nn_hop_fac[o12]*ph)
                         
     row = np.array(row)
     col = np.array(col)
@@ -843,26 +855,14 @@ def create_tNdNd_nn_matrix(VS,tNdNd):
                 if orbse != pam.Nd_orbs:
                     continue
 
-                for o1 in orbse:
-                    if vs.check_in_vs_condition(xe+vx,ye+vy,x1,y1) and vs.check_in_vs_condition(xe+vx,ye+vy,x2,y2):
-                        tmp_state = vs.create_one_hole_one_eh_state(se,o1,xe+vx,ye+vy,ze+vz, \
-                                                                    s1,orb1,x1,y1,z1,s2,orb2,x2,y2,z2)
-                        new_state,ph = vs.make_state_canonical(tmp_state)
-                        
-                        #print i, se,orbe,xe,ye,ze,s1,orb1,x1,y1,z1,s2,orb2,x2,y2,z2
-                        #print 'candidate state', se,o1,xe+vx,ye+vy,ze+vz,s1,orb1,x1,y1,z1,s2,orb2,x2,y2,z2
-                        #tse = new_state['e_spin']
-                        #torbe = new_state['e_orb']
-                        #txe, tye, tze = new_state['e_coord']                
-                        #ts1 = new_state['hole1_spin']
-                        #ts2 = new_state['hole2_spin']
-                        #torb1 = new_state['hole1_orb']
-                        #torb2 = new_state['hole2_orb']
-                        #tx1, ty1, tz1 = new_state['hole1_coord']
-                        #tx2, ty2, tz2 = new_state['hole2_coord']
-                        #print 'new state', tse,torbe,txe,tye,tze,ts1,torb1,tx1,ty1,tz1,ts2,torb2,tx2,ty2,tz2
-            
-                        set_matrix_element(row,col,data,new_state,i,VS,tNdNd*ph)
+                if not (vs.check_in_vs_condition(xe+vx,ye+vy,x1,y1) and vs.check_in_vs_condition(xe+vx,ye+vy,x2,y2)):
+                    continue
+                  
+                for oe in orbse:
+                    tmp_state = vs.create_one_hole_one_eh_state(se,oe,xe+vx,ye+vy,ze+vz, \
+                                                                s1,orb1,x1,y1,z1,s2,orb2,x2,y2,z2)
+                    new_state,ph = vs.make_state_canonical(tmp_state)
+                    set_matrix_element(row,col,data,new_state,i,VS,tNdNd*ph)
                         
     row = np.array(row)
     col = np.array(col)
@@ -1125,12 +1125,12 @@ def create_interaction_matrix_ALL_syms(VS,d_double,p_double,S_val, Sz_val, AorB_
                 # index can differ from that in original basis
                 if 'dx2y2' in o12:
                     dd_state_indices.append(i)
-                    print "dd_state_indices", i, ", state: S= ", S12, " Sz= ", Sz12, "orb= ", o1,o2
+                    #print "dd_state_indices", i, ", state: S= ", S12, " Sz= ", Sz12, "orb= ", o1,o2
 
                 # Special syms without b1 orbital:
                 if (sym=='1B2' or sym=='3B2') and 'd3z2r2' in o12 and 'dxy' in o12:
                     dd_state_indices.append(i)
-                    print "dd_state_indices", i, ", state: S= ", S12, " Sz= ", Sz12, "orb= ", o1,o2
+                    #print "dd_state_indices", i, ", state: S= ", S12, " Sz= ", Sz12, "orb= ", o1,o2
                  
     # Create Upp matrix for p-orbital multiplets
     for i in p_double:

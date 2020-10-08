@@ -61,7 +61,8 @@ elif pam.Norb==11:
                'px1':    6,\
                'py1':    7,\
                'px2':    8,\
-               'py2':    9} 
+               'py2':    9,\
+               'Nd_s':   10} 
     int_orb = {0: 'd3z2r2',\
                1: 'dx2y2',\
                2: 'dxy',\
@@ -71,7 +72,8 @@ elif pam.Norb==11:
                6: 'px1',\
                7: 'py1',\
                8: 'px2',\
-               9: 'py2'} 
+               9: 'py2',\
+              10: 'Nd_s'} 
 elif pam.Norb==12:
     orb_int = {'d3z2r2': 0,\
                'dx2y2':  1,\
