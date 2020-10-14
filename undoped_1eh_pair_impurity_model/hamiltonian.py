@@ -597,11 +597,14 @@ def create_tNiNd_nn_matrix(VS, tNiNd_nn_hop_dir, if_tNiNd_nn_hop, tNiNd_nn_hop_f
 
                     if o12 in tNiNd_orbs:
                         vac_state = vs.create_no_eh_state()
-                        set_matrix_element(row,col,data,vac_state,i,VS,tNiNd_nn_hop_fac[o12])
+                        
+                        # note np.sqrt(2) is important for reducing the VS size
+                        # see vs_reduction_note file and Mona's email on 10/13/2020
+                        set_matrix_element(row,col,data,vac_state,i,VS,np.sqrt(2)*tNiNd_nn_hop_fac[o12])
 
                         # set transpose element from no_eh to one_eh
                         row_index = VS.get_index(vac_state)
-                        data.append(tNiNd_nn_hop_fac[o12])
+                        data.append(np.sqrt(2)*tNiNd_nn_hop_fac[o12])
                         row.append(i)
                         col.append(row_index)
 
@@ -669,106 +672,6 @@ def create_tpp_nn_matrix(VS,tpp_nn_hop_fac):
     #assert(check_spin_group(row,col,data,VS)==True)
     out = sps.coo_matrix((data,(row,col)),shape=(dim,dim))
 
-    return out
-
-def create_apz2p_nn_matrix(VS, apz2p_hop_dir, if_apz2p_hop, apz2p_hop_fac):
-    '''
-    
-    Create apical pz to px(py) hopping part of the Hamiltonian if considering them
-    '''    
-    print "start create_apical_pz_to_p_hopping_matrix"
-    print "=========================="
-    
-    dim = VS.dim
-    apz2p_orbs = apz2p_hop_fac.keys()
-    data = []
-    row = []
-    col = []
-    for i in xrange(0,dim):
-        start_state = VS.get_state(VS.lookup_tbl[i])
-        
-        # double check which cost some time, might not necessary
-        assert VS.get_uid(start_state) == VS.lookup_tbl[i]
-        
-        s1 = start_state['hole1_spin']
-        s2 = start_state['hole2_spin']
-        orb1 = start_state['hole1_orb']
-        orb2 = start_state['hole2_orb']
-        x1, y1, z1 = start_state['hole1_coord']
-        x2, y2, z2 = start_state['hole2_coord']
-
-        # hole 1 hops:
-        if if_apz2p_hop[orb1] == 1:
-            for dir_ in apz2p_hop_dir[orb1]:
-                vx, vy, vz = directions_to_vecs[dir_]
-                orbs1 = lat.get_unit_cell_rep(x1+vx, y1+vy, z1+vz)
-                if orbs1 == ['NotOnSublattice']:
-                    continue
-
-                # consider t_apz for all cases; when one hole hops, the other hole should not change orb
-                for o1 in orbs1:
-                    if if_apz2p_hop[o1] == 0:
-                        continue
-                    # consider Pauli principle
-                    if s1==s2 and o1==orb2 and (x1+vx,y1+vy,z1+vz)==(x2,y2,z2):
-                        continue
-                                    
-                    if vs.check_in_vs_condition(x1+vx,y1+vy,x2,y2):
-                        tmp_state = vs.create_state(s1,o1,x1+vx,y1+vy,z1+vz,s2,orb2,x2,y2,z2)
-                        new_state,ph = vs.make_state_canonical(tmp_state)
-                                    
-                        s1n = new_state['hole1_spin']
-                        s2n = new_state['hole2_spin']
-                        orb1n = new_state['hole1_orb']
-                        orb2n = new_state['hole2_orb']
-                        x1n, y1n, z1n = new_state['hole1_coord']
-                        x2n, y2n, z2n = new_state['hole2_coord']
-                       # print x1,y1,orb1,s1,x2,y2,orb2,s2,'tpd hops to',x1n, y1n,orb1n,s1n,x2n, y2n,orb2n,s2n
-        
-                        o12 = tuple([orb1, dir_, o1])
-                        if o12 in apz2p_orbs:
-                            set_matrix_element(row,col,data,new_state,i,VS,apz2p_hop_fac[o12]*ph)
-
-        # hole 2 hops:
-        if if_apz2p_hop[orb2] == 1:
-            for dir_ in apz2p_hop_dir[orb2]:
-                vx, vy, vz = directions_to_vecs[dir_]
-                orbs2 = lat.get_unit_cell_rep(x2+vx, y2+vy, z2+vz)
-                if orbs2 == ['NotOnSublattice']:
-                    continue
-
-                # consider t_apz for all cases; when one hole hops, the other hole should not change orb
-                for o2 in orbs2:
-                    if if_apz2p_hop[o2] == 0:
-                        continue
-                    # consider Pauli principle
-                    if s1==s2 and orb1==o2 and (x1,y1,z1)==(x2+vx, y2+vy, z2+vz):
-                        continue
-                                    
-                    if vs.check_in_vs_condition(x1,y1,x2+vx,y2+vy):
-                        tmp_state = vs.create_state(s1,orb1,x1,y1,z1,s2,o2,x2+vx,y2+vy,z2+vz)
-                        new_state,ph = vs.make_state_canonical(tmp_state)
-                                    
-                        s1n = new_state['hole1_spin']
-                        s2n = new_state['hole2_spin']
-                        orb1n = new_state['hole1_orb']
-                        orb2n = new_state['hole2_orb']
-                        x1n, y1n, z1n = new_state['hole1_coord']
-                        x2n, y2n, z2n = new_state['hole2_coord']
-                        # print x1,y1,orb1,s1,x2,y2,orb2,s2,'tpd hops to',x1n, y1n,orb1n,s1n,x2n, y2n,orb2n,s2n
-        
-                        o12 = tuple([orb2, dir_, o2])
-                        if o12 in apz2p_orbs:
-                            set_matrix_element(row,col,data,new_state,i,VS,apz2p_hop_fac[o12]*ph)
-
-    row = np.array(row)
-    col = np.array(col)
-    data = np.array(data)
-    
-    # check if hoppings occur within groups of (up,up), (dn,dn), and (up,dn) 
-    assert(check_spin_group(row,col,data,VS)==True)
-    out = sps.coo_matrix((data,(row,col)),shape=(dim,dim))
-    
     return out
 
 def create_tNdNd_nn_matrix(VS,tNdNd): 

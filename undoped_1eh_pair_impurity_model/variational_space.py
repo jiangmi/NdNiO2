@@ -5,6 +5,31 @@ Distance (L1-norm) between any two particles(holes) cannot > cutoff Mc
 
 1 el-hole pair must have opposite spins 
 so only need to consider the case of electron spin up
+
+Analysis of VS in terms of spin symmetry:
+Because we allow 1 e-h pair at most, plus a vacuum state, VS consists of:
+1. vac
+2. eh pair (Nd up electron + paired dn hole)
+2. eh pair (Nd dn electron + paired up hole)
+
+Then Hamiltonian matrix looks
+[0  A  A
+At  M  0
+At  0  M]
+
+where 0 is the site energy of the single vacuum state; A is a block matrix with 1xn dimension and At is its transpose. So A depends on Ni-Nd hoppings.
+
+M is nxn matrix depending on other hoppings and site energies. n is the number of states with one Nd electron (spin up/down) and one Ni or O hole (spin down/up). So now we want to get the GS by another matrix instead.
+
+Mona replied:
+I think in this case you'll get the right answer is you use
+  [0         sqrt(2) A
+sqrt(2) At       M]
+for the "symmetric" sector, ie where you expect the contribution to the eigestates to have the same entries for the 
+2nd and 3rd part of your vector. In other words, if the eigenvalue of the "3x3" matrix has entries (phi_1  phi_2 phi_3) for the three blocks, and if the eigenstates are such that phi_2=phi_3, then you can recast that "3x3" problem into a "2x2" one with the matrix written above, and the eigenstate is (phi_1  sqrt(2) phi_2) 
+
+The sqrt(2) is necessary so you maintain the same normalization in both formulations, i.e. phi_1^2 + 2 phi_2^2=1.
+And be careful that the eigenstate now returns sqrt(2)*phi_2, not phi_2. You'll need to adjust for it if you need phi_2 to  calculate expectation values.
 '''
 
 import parameters as pam
@@ -168,7 +193,7 @@ class VariationalSpace:
 
                                 for orb1 in orb1s:
                                     for orb2 in orb2s:
-                                        for s in ['up']:#,'dn']:
+                                        for s in ['up','dn']:
                                             state = create_one_eh_state(s,orb1,ux,uy,uz,orb2,vx,vy,vz)
 
                                             if self.filter_func(state):
