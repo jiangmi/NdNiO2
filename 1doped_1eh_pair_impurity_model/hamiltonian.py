@@ -651,6 +651,10 @@ def create_tNiNd_nn_matrix(VS, tNiNd_nn_hop_dir, if_tNiNd_nn_hop, tNiNd_nn_hop_f
             
             # hole1
             if orb1 in pam.Ni_orbs:
+                # eh annilation must be opposite spin
+                if s1==se:
+                    continue
+                    
                 if if_tNiNd_nn_hop[orb1] == 1:
                     for dir_ in tNiNd_nn_hop_dir[orbe]:
                         vx, vy, vz = directions_to_vecs[dir_]
@@ -674,6 +678,10 @@ def create_tNiNd_nn_matrix(VS, tNiNd_nn_hop_dir, if_tNiNd_nn_hop, tNiNd_nn_hop_f
 
             # hole2
             if orb2 in pam.Ni_orbs:
+                # eh annilation must be opposite spin
+                if s2==se:
+                    continue
+                    
                 if if_tNiNd_nn_hop[orb2] == 1:
                     for dir_ in tNiNd_nn_hop_dir[orbe]:
                         vx, vy, vz = directions_to_vecs[dir_]
@@ -1099,6 +1107,9 @@ def create_interaction_matrix_ALL_syms(VS,d_double,p_double,S_val, Sz_val, AorB_
                 # get the corresponding index in sym for setting up matrix element
                 idx1 = state_order[o12]
                 for j in d_double:
+                    if j<i:
+                        continue
+                        
                     state = VS.get_state(VS.lookup_tbl[j])
                     o3 = state['hole1_orb']
                     o4 = state['hole2_orb']
@@ -1119,6 +1130,8 @@ def create_interaction_matrix_ALL_syms(VS,d_double,p_double,S_val, Sz_val, AorB_
 
                         val = interaction_mat[idx1][idx2]
                         data.append(val); row.append(i); col.append(j)
+                        if j!=i:
+                            data.append(val); row.append(j); col.append(i)
 
                 # get index for desired dd states
                 # Note: for transformed basis of singlet/triplet
