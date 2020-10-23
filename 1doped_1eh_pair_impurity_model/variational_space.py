@@ -91,7 +91,16 @@ def create_one_hole_one_eh_state(se,orbe,xe,ye,ze,s1,orb1,x1,y1,z1,s2,orb2,x2,y2
     
 def make_state_canonical(state):
     '''
-    Considering the constraints of two holes' spins,
+    1. There are a few cases to avoid having duplicate states.
+    The sign change due to anticommuting creation operators should be 
+    taken into account so that phase below has a negative sign
+    =============================================================
+    Case 1: 
+    Note here is different from Mirko's version for only same spin !!
+    Now whenever hole2 is on left of hole 1, switch them and
+    order the hole coordinates in such a way that the coordinates 
+    of the left creation operator are lexicographically
+    smaller than those of the right.Considering the constraints of two holes' spins,
     1. There are a few cases to avoid having duplicate states where 
     the holes are indistinguishable. 
     
@@ -253,7 +262,7 @@ class VariationalSpace:
 
         Returns
         -------
-        lookup_tbl: sorted python list.
+        lookup_tbl: sorted python list
         '''
         Mc = self.Mc
         lookup_tbl = []

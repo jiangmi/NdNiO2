@@ -4,7 +4,7 @@ matrices still need to be multiplied with the appropriate coupling
 constants t_pd, t_pp, etc..
 
 If adding into diagonal Nd atoms (with only s-like orbital as approximation)
-then only dxy hops with it
+then only d3z2r2, dxy hop with it
 '''
 import parameters as pam
 import lattice as lat
@@ -46,8 +46,9 @@ def set_tpd_tpp_tNiNd(Norb,tpd,tpp,tNiNd,pds,pdp,pps,ppp):
                           'dx2y2' : ['L','R','U','D'],\
                           'px'    : ['L','R'],\
                           'py'    : ['U','D']}
-        tNiNd_nn_hop_dir = {'dxy' : ['UR','UL','DL','DR'],\
-                            'Nd_s': ['UR','UL','DL','DR']}
+        tNiNd_nn_hop_dir = {'d3z2r2' : ['UR','UL','DL','DR'],\
+                            'dxy'    : ['UR','UL','DL','DR'],\
+                            'Nd_s'   : ['UR','UL','DL','DR']}
     elif pam.Norb==10 or pam.Norb==11:
         tpd_nn_hop_dir = {'d3z2r2': ['L','R','U','D'],\
                           'dx2y2' : ['L','R','U','D'],\
@@ -56,8 +57,9 @@ def set_tpd_tpp_tNiNd(Norb,tpd,tpp,tNiNd,pds,pdp,pps,ppp):
                           'py1'   : ['L','R'],\
                           'px2'   : ['U','D'],\
                           'py2'   : ['U','D']}
-        tNiNd_nn_hop_dir = {'dxy' : ['UR','UL','DL','DR'],\
-                            'Nd_s': ['UR','UL','DL','DR']}
+        tNiNd_nn_hop_dir = {'d3z2r2' : ['UR','UL','DL','DR'],\
+                            'dxy'    : ['UR','UL','DL','DR'],\
+                            'Nd_s'   : ['UR','UL','DL','DR']}
     elif pam.Norb==12:
         tpd_nn_hop_dir = {'d3z2r2': ['L','R','U','D'],\
                           'dx2y2' : ['L','R','U','D'],\
@@ -70,8 +72,9 @@ def set_tpd_tpp_tNiNd(Norb,tpd,tpp,tNiNd,pds,pdp,pps,ppp):
                           'px2'   : ['U','D'],\
                           'py2'   : ['U','D'],\
                           'pz2'   : ['U','D']}
-        tNiNd_nn_hop_dir = {'dxy' : ['UR','UL','DL','DR'],\
-                            'Nd_s': ['UR','UL','DL','DR']}
+        tNiNd_nn_hop_dir = {'d3z2r2' : ['UR','UL','DL','DR'],\
+                            'dxy'    : ['UR','UL','DL','DR'],\
+                            'Nd_s'   : ['UR','UL','DL','DR']}
     if pam.Norb==3:
         if_tpd_nn_hop = {'dx2y2' : 1,\
                          'px'    : 1,\
@@ -84,7 +87,7 @@ def set_tpd_tpp_tNiNd(Norb,tpd,tpp,tNiNd,pds,pdp,pps,ppp):
                          'dyz'   : 0,\
                          'px'    : 1,\
                          'py'    : 1}
-        if_tNiNd_nn_hop = {'d3z2r2': 0,\
+        if_tNiNd_nn_hop = {'d3z2r2': 1,\
                            'dx2y2' : 0,\
                            'dxy'   : 1,\
                            'dxz'   : 0,\
@@ -100,7 +103,7 @@ def set_tpd_tpp_tNiNd(Norb,tpd,tpp,tNiNd,pds,pdp,pps,ppp):
                          'py1'   : 1,\
                          'px2'   : 1,\
                          'py2'   : 1}
-        if_tNiNd_nn_hop = {'d3z2r2': 0,\
+        if_tNiNd_nn_hop = {'d3z2r2': 1,\
                            'dx2y2' : 0,\
                            'dxy'   : 1,\
                            'dxz'   : 0,\
@@ -117,7 +120,7 @@ def set_tpd_tpp_tNiNd(Norb,tpd,tpp,tNiNd,pds,pdp,pps,ppp):
                          'py1'   : 1,\
                          'px2'   : 1,\
                          'py2'   : 1}
-        if_tNiNd_nn_hop = {'d3z2r2': 0,\
+        if_tNiNd_nn_hop = {'d3z2r2': 1,\
                            'dx2y2' : 0,\
                            'dxy'   : 1,\
                            'dxz'   : 0,\
@@ -135,7 +138,7 @@ def set_tpd_tpp_tNiNd(Norb,tpd,tpp,tNiNd,pds,pdp,pps,ppp):
                          'px2'   : 1,\
                          'py2'   : 1,\
                          'pz2'   : 1}
-        if_tNiNd_nn_hop = {'d3z2r2': 0,\
+        if_tNiNd_nn_hop = {'d3z2r2': 1,\
                            'dx2y2' : 0,\
                            'dxy'   : 1,\
                            'dxz'   : 0,\
@@ -173,11 +176,15 @@ def set_tpd_tpp_tNiNd(Norb,tpd,tpp,tNiNd,pds,pdp,pps,ppp):
                           ('px','L','dx2y2'):  -tpd,\
                           ('py','D','dx2y2'):   tpd,\
                           ('py','U','dx2y2'):  -tpd}
-        # only dxy hops to Nd s-like orbital (note that here use electron language!!!)
-        tNiNd_nn_hop_fac = {('Nd_s','UR','dxy'): -tNiNd,\
-                            ('Nd_s','UL','dxy'):  tNiNd,\
-                            ('DL','Nd_s','dxy'): -tNiNd,\
-                            ('DR','Nd_s','dxy'):  tNiNd}
+        # only dxy and d3z2r2 hops to Nd s-like orbital (note that here use electron language!!!)
+        tNiNd_nn_hop_fac = {('Nd_s','UR','dxy'): -tNiNd*np.sqrt(3),\
+                            ('Nd_s','UL','dxy'):  tNiNd*np.sqrt(3),\
+                            ('DL','Nd_s','dxy'): -tNiNd*np.sqrt(3),\
+                            ('DR','Nd_s','dxy'):  tNiNd*np.sqrt(3),\
+                            ('Nd_s','UR','d3z2r2'): -tNiNd,\
+                            ('Nd_s','UL','d3z2r2'): -tNiNd,\
+                            ('DL','Nd_s','d3z2r2'): -tNiNd,\
+                            ('DR','Nd_s','d3z2r2'): -tNiNd}
     elif pam.Norb==10 or pam.Norb==11:
         c = np.sqrt(3)/2.0
         tpd_nn_hop_fac = {('d3z2r2','L','px1'):  pds/2.0,\
@@ -205,11 +212,15 @@ def set_tpd_tpp_tNiNd(Norb,tpd,tpp,tNiNd,pds,pdp,pps,ppp):
                           ('py1','L','dxy'):   pdp,\
                           ('px2','D','dxy'):   pdp,\
                           ('px2','U','dxy'):  -pdp}
-        # only dxy hops to Nd s-like orbital (note that here use electron language!!!)
-        tNiNd_nn_hop_fac = {('Nd_s','UR','dxy'): -tNiNd,\
-                            ('Nd_s','UL','dxy'):  tNiNd,\
-                            ('DL','Nd_s','dxy'): -tNiNd,\
-                            ('DR','Nd_s','dxy'):  tNiNd}
+        # only dxy and d3z2r2 hops to Nd s-like orbital (note that here use electron language!!!)
+        tNiNd_nn_hop_fac = {('Nd_s','UR','dxy'): -tNiNd*np.sqrt(3),\
+                            ('Nd_s','UL','dxy'):  tNiNd*np.sqrt(3),\
+                            ('DL','Nd_s','dxy'): -tNiNd*np.sqrt(3),\
+                            ('DR','Nd_s','dxy'):  tNiNd*np.sqrt(3),\
+                            ('Nd_s','UR','d3z2r2'): -tNiNd,\
+                            ('Nd_s','UL','d3z2r2'): -tNiNd,\
+                            ('DL','Nd_s','d3z2r2'): -tNiNd,\
+                            ('DR','Nd_s','d3z2r2'): -tNiNd}
     elif pam.Norb==12:
         c = np.sqrt(3)/2.0
         tpd_nn_hop_fac = {('d3z2r2','L','px1'):  pds/2.0,\
@@ -245,11 +256,15 @@ def set_tpd_tpp_tNiNd(Norb,tpd,tpp,tNiNd,pds,pdp,pps,ppp):
                           ('pz1','L','dxz'):   pdp,\
                           ('pz2','D','dyz'):   pdp,\
                           ('pz2','U','dyz'):  -pdp}
-        # only dxy hops to Nd s-like orbital (note that here use electron language!!!)
-        tNiNd_nn_hop_fac = {('Nd_s','UR','dxy'): -tNiNd,\
-                            ('Nd_s','UL','dxy'):  tNiNd,\
-                            ('DL','Nd_s','dxy'): -tNiNd,\
-                            ('DR','Nd_s','dxy'):  tNiNd}
+        # only dxy and d3z2r2 hops to Nd s-like orbital (note that here use electron language!!!)
+        tNiNd_nn_hop_fac = {('Nd_s','UR','dxy'): -tNiNd*np.sqrt(3),\
+                            ('Nd_s','UL','dxy'):  tNiNd*np.sqrt(3),\
+                            ('DL','Nd_s','dxy'): -tNiNd*np.sqrt(3),\
+                            ('DR','Nd_s','dxy'):  tNiNd*np.sqrt(3),\
+                            ('Nd_s','UR','d3z2r2'): -tNiNd,\
+                            ('Nd_s','UL','d3z2r2'): -tNiNd,\
+                            ('DL','Nd_s','d3z2r2'): -tNiNd,\
+                            ('DR','Nd_s','d3z2r2'): -tNiNd}
     ########################## tpp below ##############################
     if pam.Norb==3 or pam.Norb==8:
         tpp_nn_hop_fac = {('UR','px','py'): -tpp,\
@@ -643,7 +658,7 @@ def create_tpp_nn_matrix(VS,tpp_nn_hop_fac):
             x1, y1, z1 = start_state['e_coord']
             x2, y2, z2 = start_state['h_coord']
 
-            # hole 2 hops, only p-orbitals has t_pp 
+            # hole hops, only p-orbitals has t_pp 
             if orb2 in pam.O_orbs and orb2 not in pam.ap_orbs and orb2!='pz1' and orb2!='pz2':
                 for dir_ in tpp_nn_hop_dir:
                     vx, vy, vz = directions_to_vecs[dir_]
