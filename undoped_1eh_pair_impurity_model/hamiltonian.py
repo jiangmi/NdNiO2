@@ -614,12 +614,18 @@ def create_tNiNd_nn_matrix(VS, tNiNd_nn_hop_dir, if_tNiNd_nn_hop, tNiNd_nn_hop_f
                         vac_state = vs.create_no_eh_state()
                         
                         # note np.sqrt(2) is important for reducing the VS size
-                        # see vs_reduction_note file and Mona's email on 10/13/2020
-                        set_matrix_element(row,col,data,vac_state,i,VS,np.sqrt(2)*tNiNd_nn_hop_fac[o12])
+                        # see vs_reduction_note.py and Mona's email on 10/13/2020
+                        if pam.VS_only_up_Nd==1:
+                            set_matrix_element(row,col,data,vac_state,i,VS,np.sqrt(2)*tNiNd_nn_hop_fac[o12])
+                        else:
+                            set_matrix_element(row,col,data,vac_state,i,VS,tNiNd_nn_hop_fac[o12])
 
                         # set transpose element from no_eh to one_eh
                         row_index = VS.get_index(vac_state)
-                        data.append(np.sqrt(2)*tNiNd_nn_hop_fac[o12])
+                        if pam.VS_only_up_Nd==1:
+                            data.append(np.sqrt(2)*tNiNd_nn_hop_fac[o12])
+                        else:
+                            data.append(tNiNd_nn_hop_fac[o12])
                         row.append(i)
                         col.append(row_index)
 

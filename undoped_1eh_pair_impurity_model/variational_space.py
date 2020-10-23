@@ -177,7 +177,12 @@ class VariationalSpace:
                                 for orb1 in orb1s:
                                     for orb2 in orb2s:
                                         # only need to consider one spin case, see top
-                                        for s in ['up']:#,'dn']:
+                                        for s in ['up','dn']:
+                                            # reduce VS size
+                                            if pam.VS_only_up_Nd==1:
+                                                if s=='dn':
+                                                    continue
+                                                        
                                             state = create_one_eh_state(s,orb1,ux,uy,uz,orb2,vx,vy,vz)
 
                                             if self.filter_func(state):
