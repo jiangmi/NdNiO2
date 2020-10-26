@@ -2,7 +2,7 @@ import math
 import numpy as np
 M_PI = math.pi
 
-Mc = 2
+Mc = 4
 
 # Note that Ni-d and O-p orbitals use hole language
 # while Nd orbs use electron language
@@ -38,8 +38,8 @@ if Norb==3 or Norb==8:
     tpds = np.linspace(1.5, 1.5, num=1, endpoint=True) #[0.25]
     #tpds = [2.001]
     tpps = [0.55]
-    tNiNds = [1.0]
-    tNdNds = [0.3]
+    tNiNds = [0.5]
+    tNdNds = [0.2]
 elif Norb==10 or Norb==11 or Norb==12:    
     # pdp = sqrt(3)/4*pds so that tpd(b2)=tpd(b1)/2: see Eskes's thesis and 1990 paper
     # the values of pds and pdp between papers have factor of 2 difference
@@ -50,8 +50,8 @@ elif Norb==10 or Norb==11 or Norb==12:
     pdps = np.asarray(pdss)*np.sqrt(3)/4.
     #pdss = [1.5]
     #pdps = [0.7]
-    tNiNds = [0.0]
-    tNdNds = [0.3]
+    tNiNds = [0.5]
+    tNdNds = [0.2]
     #------------------------------------------------------------------------------
     # note that tpp ~ (pps+ppp)/2
     # because 3 or 7 orbital bandwidth is 8*tpp while 9 orbital has 4*(pps+ppp)

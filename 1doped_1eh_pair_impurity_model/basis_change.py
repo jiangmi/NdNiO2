@@ -191,15 +191,19 @@ def find_singlet_triplet_partner_d_double(state,VS):
     index: index of the singlet/triplet partner state in the VS
     phase: phase factor with which the partner state needs to be multiplied.
     '''
-    s1 = state['hole1_spin']
-    s2 = state['hole2_spin']
-    orb1 = state['hole1_orb']
-    orb2 = state['hole2_orb']
-    x1, y1, z1 = state['hole1_coord']
-    x2, y2, z2 = state['hole2_coord']
-
-    partner_state = vs.create_state('up',orb2,x2,y2,z2,'dn',orb1,x1,y1,z1)
-    phase = -1.0
+    if state['type'] == 'one_hole_one_eh': 
+        se = state['e_spin']
+        orbe = state['e_orb']
+        xe, ye, ze = state['e_coord']
+        s1 = state['hole1_spin']
+        s2 = state['hole2_spin']
+        orb1 = state['hole1_orb']
+        orb2 = state['hole2_orb']
+        x1, y1, z1 = state['hole1_coord']
+        x2, y2, z2 = state['hole2_coord']
+        
+        tmp_state = vs.create_one_hole_one_eh_state(se,orbe,xe,ye,ze,s2,orb1,x1,y1,z1,s1,orb2,x2,y2,z2)
+        partner_state, phase = vs.make_state_canonical(tmp_state)
         
     return VS.get_index(partner_state), phase
 
