@@ -134,7 +134,7 @@ def make_state_canonical(state):
         x1, y1, z1 = state['hole1_coord']
         x2, y2, z2 = state['hole2_coord']
         
-        if (x2,y2)<(x1,y1) and s1==s2:
+        if (x2,y2)<(x1,y1):
             canonical_state = create_one_hole_one_eh_state(se,orbe,xe,ye,ze,s2,orb2,x2,y2,z2,s1,orb1,x1,y1,z1)
             phase = -1.0
 
@@ -257,14 +257,16 @@ class VariationalSpace:
                         continue
                         
                     for orb1 in orb1s:
-                        for s1 in ['up','dn']:  
-                            if check_in_vs_condition(ux,uy,0,0):
-                                state = create_one_hole_no_eh_state(s1,orb1,ux,uy,uz)
-                                canonical_state,_ = make_state_canonical(state)
+                        # see H_matrix_reducing_VS.pdf
+                        if pam.reduce_VS==1:
+                            for s1 in ['up']:#,'dn']:  
+                                if check_in_vs_condition(ux,uy,0,0):
+                                    state = create_one_hole_no_eh_state(s1,orb1,ux,uy,uz)
+                                    canonical_state,_ = make_state_canonical(state)
 
-                            if self.filter_func(canonical_state):
-                                uid = self.get_uid(canonical_state)
-                                lookup_tbl.append(uid)
+                                if self.filter_func(canonical_state):
+                                    uid = self.get_uid(canonical_state)
+                                    lookup_tbl.append(uid)
 
         # one e-h pair
         # electron:
@@ -311,13 +313,22 @@ class VariationalSpace:
                                                                     if s2==se and s1==se:
                                                                         continue
     
-                                                                    # try screen out same hole spin states
-                                                                    if pam.VS_only_up_dn==1:
-                                                                        if s1==s2:
-                                                                            continue
-                                                                    # try only keep Sz=1 triplet states
-                                                                    if pam.VS_only_up_up==1:
-                                                                        if not s1==s2=='up':
+                                                                    if pam.reduce_VS==1:
+                                                                        # complicated way:
+                                                                        #if s1==s2=='dn':
+                                                                        #    continue
+
+                                                                        #s12 = sorted([s1,s2])
+                                                                        #if se=='up':
+                                                                        #    if s12!=['dn','up']:
+                                                                        #        continue
+                                                                        #elif se=='dn':
+                                                                        #    if s12!=['up','up']:
+                                                                        #        continue
+                                                                    
+                                                                        # simple way: total spin should be up
+                                                                        s12e = sorted([se,s1,s2])
+                                                                        if s12e!=['dn','up','up']:
                                                                             continue
 
                                                                     # consider Pauli principle

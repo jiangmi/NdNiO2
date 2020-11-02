@@ -628,6 +628,9 @@ def create_tNiNd_nn_matrix(VS, tNiNd_nn_hop_dir, if_tNiNd_nn_hop, tNiNd_nn_hop_f
     creation/annihilation of e-h excitation so that e can only be on
     sites nn to Ni
     By Pauli principle, the only process is e hops from Nd to Ni
+    
+    George said to only keep d10 to d9s hopping; so only 
+    d9_dn L_up s_up and d9_up L_up s_dn connect to L_up have finite tNiNd
     '''    
     print "start create_tNiNd_nn_matrix"
     print "=========================="
@@ -661,7 +664,10 @@ def create_tNiNd_nn_matrix(VS, tNiNd_nn_hop_dir, if_tNiNd_nn_hop, tNiNd_nn_hop_f
             if vs.calc_manhattan_dist(xe,ye,0,0)>2.1:
                 continue
                 
-            if (orb1 not in pam.Ni_orbs) and (orb2 not in pam.Ni_orbs):
+            # d8 and d10L2 are not allowed, see above George's idea
+            if (orb1 in pam.Ni_orbs) and (orb2 in pam.Ni_orbs):
+                continue
+            if (orb1 in pam.O_orbs) and (orb2 in pam.O_orbs):
                 continue
             
             # hole1
@@ -682,6 +688,7 @@ def create_tNiNd_nn_matrix(VS, tNiNd_nn_hop_dir, if_tNiNd_nn_hop, tNiNd_nn_hop_f
                         o12 = tuple(o12)
                         
                         if o12 in tNiNd_orbs:
+                            #print 'hole 1 tNiNd state', i, se,orbe,xe,ye,s1,orb1,x1,y1,s2,orb2,x2,y2
                             vac_state = vs.create_one_hole_no_eh_state(s2,orb2,x2,y2,z2)
                             set_matrix_element(row,col,data,vac_state,i,VS,tNiNd_nn_hop_fac[o12])
                             
@@ -709,6 +716,7 @@ def create_tNiNd_nn_matrix(VS, tNiNd_nn_hop_dir, if_tNiNd_nn_hop, tNiNd_nn_hop_f
                         o12 = tuple(o12)
                         
                         if o12 in tNiNd_orbs:
+                            #print 'hole 2 tNiNd state', i, se,orbe,xe,ye,s1,orb1,x1,y1,s2,orb2,x2,y2
                             vac_state = vs.create_one_hole_no_eh_state(s1,orb1,x1,y1,z1)
                             set_matrix_element(row,col,data,vac_state,i,VS,tNiNd_nn_hop_fac[o12])
                             
@@ -1100,9 +1108,10 @@ def create_interaction_matrix_ALL_syms(VS,d_double,p_double,S_val, Sz_val, AorB_
         print "orbitals in sym ", sym, "= ", sym_orbs
 
         for i in d_double:
-            # state is original state but its orbital info remains after basis change
+            # the state's orbital info remains after basis change
             state = VS.get_state(VS.lookup_tbl[i])
             if state['type'] == 'one_hole_one_eh':
+                se12 = state['e_spin']
                 o1 = state['hole1_orb']
                 o2 = state['hole2_orb']
                 o12 = sorted([o1,o2])
@@ -1121,17 +1130,24 @@ def create_interaction_matrix_ALL_syms(VS,d_double,p_double,S_val, Sz_val, AorB_
 
                 # get the corresponding index in sym for setting up matrix element
                 idx1 = state_order[o12]
+                
+                # find state connecting to i
                 for j in d_double:
                     if j<i:
                         continue
                         
                     state = VS.get_state(VS.lookup_tbl[j])
+                    se34 = state['e_spin']
                     o3 = state['hole1_orb']
                     o4 = state['hole2_orb']
                     o34 = sorted([o3,o4])
                     o34 = tuple(o34)
                     S34  = S_val[j]
                     Sz34 = Sz_val[j]
+                    
+                    # see H_matrix_reduce_VS 
+                    if se12!=se34:
+                        continue
 
                     if (o3==o4=='dxz' or o3==o4=='dyz') and AorB_sym[j]!=AorB:
                         continue

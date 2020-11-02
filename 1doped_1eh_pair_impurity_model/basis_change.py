@@ -41,7 +41,6 @@ def find_singlet_triplet_partner(state,VS):
     '''
     For a given state find its partner state to form a singlet/triplet.
     Applies to general opposite-spin state, not nesessarily in d_double
-
     Returns
     -------
     index: index of the singlet/triplet partner state in the VS
@@ -68,14 +67,12 @@ def create_singlet_triplet_basis_change_matrix(VS,d_double):
     Create a matrix representing the basis change to singlets/triplets. The
     columns of the output matrix are the new basis vectors. 
     The Hamiltonian transforms as U_dagger*H*U. 
-
     Parameters
     ----------
     phase: dictionary containing the phase factors created with
         hamiltonian.create_phase_dict.
     VS: VariationalSpace class from the module variational_space. Should contain
         only zero-magnon states.
-
     Returns
     -------
     U: matrix representing the basis change to singlets/triplets in
@@ -234,6 +231,7 @@ def create_singlet_triplet_basis_change_matrix_d_double(VS,d_double):
             data.append(np.sqrt(2.0)); row.append(i); col.append(i)
         
     for i in d_double:
+        # d_double must be one_eh state
         start_state = VS.get_state(VS.lookup_tbl[i])
         s1 = start_state['hole1_spin']
         s2 = start_state['hole2_spin']

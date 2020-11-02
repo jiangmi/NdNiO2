@@ -2,7 +2,7 @@ import math
 import numpy as np
 M_PI = math.pi
 
-Mc = 10
+Mc = 15
 
 # Note that Ni-d and O-p orbitals use hole language
 # while Nd orbs use electron language

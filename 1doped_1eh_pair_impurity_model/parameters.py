@@ -2,7 +2,7 @@ import math
 import numpy as np
 M_PI = math.pi
 
-Mc = 4
+Mc = 5
 
 # Note that Ni-d and O-p orbitals use hole language
 # while Nd orbs use electron language
@@ -23,6 +23,7 @@ As = np.arange(6.0, 6.01, 1.0)
 B = 0.15
 C = 0.58
 #As = np.arange(100, 100.1, 1.0)
+#As = np.arange(0.0, 0.01, 1.0)
 #B = 0
 #C = 0
 
@@ -64,10 +65,9 @@ eta = 0.02
 Lanczos_maxiter = 600
 
 # restriction on variational space
-VS_only_up_up = 0
-VS_only_up_dn = 0
+reduce_VS = 1
 
-basis_change_type = 'all_states' # 'all_states' or 'd_double'
+basis_change_type = 'd_double' # 'all_states' or 'd_double'
 if_print_VS_after_basis_change = 0
 
 if_find_lowpeak = 0

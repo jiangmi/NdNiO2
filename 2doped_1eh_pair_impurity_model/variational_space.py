@@ -19,8 +19,13 @@ Because we allow 1 e-h pair at most, plus a doped hole, VS consists of:
 11. two dn_dn holes + eh pair (Nd up electron + paired dn hole)
 12. two dn_dn holes + eh pair (Nd dn electron + paired up hole)
 
-Hence, 1+5+6, 4+11+12, 2+3+7+8+9+10 couple together 
-so for reducing VS size, can keep only 2+3+7+8+9+10 similar to NiO2 case
+To reduce VS size, see H_matrix_reducing_VS.pdf for more details !
+
+The simple rule is starting from d8, d9L, d10L2 with up and dn spins 
+(up up and dn dn can be neglected or precisely in other unconnected subspace of VS). 
+
+Then in the presence of e-h pair, the only constraint for spin is that 
+the four spins (1 el and 3 holes) should form a list of up up dn dn. 
 '''
 import parameters as pam
 import lattice as lat
@@ -366,13 +371,9 @@ class VariationalSpace:
                                     for orb2 in orb2s:
                                         for s1 in ['up','dn']:
                                             for s2 in ['up','dn']:   
-                                                # try screen out same hole spin states
-                                                if pam.VS_only_up_dn==1:
+                                                # see H_matrix_reducing_VS.pdf
+                                                if pam.reduce_VS==1:
                                                     if s1==s2:
-                                                        continue
-                                                # try only keep Sz=1 triplet states
-                                                if pam.VS_only_up_up==1:
-                                                    if not s1==s2=='up':
                                                         continue
 
                                                 # consider Pauli principle
@@ -448,13 +449,9 @@ class VariationalSpace:
                                                                                             continue
 
                                                                                         # screen out same hole spin states
-                                                                                        if pam.VS_only_up_dn==1:
+                                                                                        if pam.reduce_VS==1:
                                                                                             sss = sorted([se,s1,s2,s3])
                                                                                             if sss!=['dn','dn','up','up']:
-                                                                                                continue
-                                                                                        # try only keep Sz=1 triplet states
-                                                                                        if pam.VS_only_up_up==1:
-                                                                                            if not s1==s2=='up':
                                                                                                 continue
 
                                                                                         # consider Pauli principle
