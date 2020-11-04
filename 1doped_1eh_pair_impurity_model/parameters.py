@@ -2,7 +2,7 @@ import math
 import numpy as np
 M_PI = math.pi
 
-Mc = 5
+Mc = 3
 
 # Note that Ni-d and O-p orbitals use hole language
 # while Nd orbs use electron language
@@ -16,16 +16,16 @@ ed = {'d3z2r2': 0,\
       'dxy'   : 0,\
       'dxz'   : 0,\
       'dyz'   : 0}
-eNd = 4.0
+eNd = 100.0
 
 eps = np.arange(7.0, 7.01, 1.0) #[3.5]#,3.5,4.5]
 As = np.arange(6.0, 6.01, 1.0)
 B = 0.15
 C = 0.58
 #As = np.arange(100, 100.1, 1.0)
-#As = np.arange(0.0, 0.01, 1.0)
-#B = 0
-#C = 0
+As = np.arange(0.0, 0.01, 1.0)
+B = 0
+C = 0
 
 # Note: tpd and tpp are only amplitude signs are considered separately in hamiltonian.py
 # Slater Koster integrals and the overlaps between px and d_x^2-y^2 is sqrt(3) bigger than between px and d_3x^2-r^2 
@@ -39,8 +39,8 @@ if Norb==3 or Norb==8:
     tpds = np.linspace(1.5, 1.5, num=1, endpoint=True) #[0.25]
     #tpds = [2.001]
     tpps = [0.55]
-    tNiNds = [0.5]
-    tNdNds = [0.2]
+    tNiNds = [0.0]
+    tNdNds = [0.0]
 elif Norb==10 or Norb==11 or Norb==12:    
     # pdp = sqrt(3)/4*pds so that tpd(b2)=tpd(b1)/2: see Eskes's thesis and 1990 paper
     # the values of pds and pdp between papers have factor of 2 difference

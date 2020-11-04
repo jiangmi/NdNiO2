@@ -670,7 +670,7 @@ def create_tpp_nn_matrix(VS,tpp_nn_hop_fac):
                     vx, vy, vz = directions_to_vecs[dir_]
                     orbs2 = lat.get_unit_cell_rep(x2+vx, y2+vy, z2+vz)
 
-                    if orbs2!=pam.O_orbs:
+                    if orbs2!=pam.O1_orbs and orbs2!=pam.O2_orbs:
                         continue
 
                     if not vs.check_in_vs_condition(x1,y1,x2+vx,y2+vy): 

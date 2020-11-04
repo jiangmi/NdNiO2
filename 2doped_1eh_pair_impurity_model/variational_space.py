@@ -576,6 +576,9 @@ class VariationalSpace:
             # note the final +off1 to avoid mixing with no_eh state labeled as 0
             uid = i1 + 2*i2 +4*z1 +8*z2 +16*o1 +16*N*o2 \
                 + 16*N2*( (y1+s) + (x1+s)*B1 + (y2+s)*B2 + (x2+s)*B3)
+                
+            #uid = i1 + 2*i2 + 4*z1 + 8*z2 + 16*o1 + 16*N*o2 \
+            #    +16*N2*( (y1+s) + (x1+s)*B1 + (y2+s)*(B2+B1+1) + (x2+s)*(B3+B2+B1)*2 )
 
             # check if uid maps back to the original state, namely uid's uniqueness
             tstate = self.get_state(uid)
@@ -654,9 +657,14 @@ class VariationalSpace:
         N3 = N2*N
         N4 = N3*N
         off1 = 16*N2*B4
+        #off1 = 16*N2*B1*(B3+B2+B1)*2
         
         if uid < off1:                
             uid_ = uid 
+            #x2 = uid_/(16*N2*(B3+B2+B1)*2) - s
+            #uid_ = uid_ % (16*N2*(B3+B2+B1)*2)
+            #y2 = uid_/(16*N2*(B2+B1+1)) - s
+            #uid_ = uid_ % (16*N2*(B2+B1+1))
             x2 = uid_/(16*N2*B3) - s
             uid_ = uid_ % (16*N2*B3)
             y2 = uid_/(16*N2*B2) - s

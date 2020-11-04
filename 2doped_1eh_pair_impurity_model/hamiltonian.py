@@ -548,6 +548,7 @@ def create_tpd_nn_matrix(VS, tpd_nn_hop_dir, if_tpd_nn_hop, tpd_nn_hop_fac):
                         slabel = [s1,o1,x1+vx,y1+vy,z1+vz,s2,orb2,x2,y2,z2]
                         tmp_state = vs.create_two_hole_no_eh_state(slabel)
                         new_state,ph = vs.make_state_canonical(tmp_state)
+                        #new_state,ph = vs.make_state_canonical_old(tmp_state)
 
                         o12 = tuple([orb1, dir_, o1])
                         if o12 in tpd_orbs:
@@ -574,6 +575,7 @@ def create_tpd_nn_matrix(VS, tpd_nn_hop_dir, if_tpd_nn_hop, tpd_nn_hop_fac):
                         slabel = [s1,orb1,x1,y1,z1,s2,o2,x2+vx,y2+vy,z2+vz]
                         tmp_state = vs.create_two_hole_no_eh_state(slabel)
                         new_state,ph = vs.make_state_canonical(tmp_state)
+                        #new_state,ph = vs.make_state_canonical_old(tmp_state)
 
                         o12 = tuple([orb2, dir_, o2])
                         if o12 in tpd_orbs:
@@ -692,6 +694,9 @@ def create_tNiNd_nn_matrix(VS, tNiNd_nn_hop_dir, if_tNiNd_nn_hop, tNiNd_nn_hop_f
     By Pauli principle, the only process is e hops from Nd to Ni
     
     Note that this function has different structure from other hoppings !!!
+    
+    George said to only keep d10 to d9s hopping; so only 
+    d9_dn L_up s_up and d9_up L_up s_dn connect to L_up have finite tNiNd
     '''    
     print "start create_tNiNd_nn_matrix"
     print "=========================="
@@ -728,7 +733,19 @@ def create_tNiNd_nn_matrix(VS, tNiNd_nn_hop_dir, if_tNiNd_nn_hop, tNiNd_nn_hop_f
             if vs.calc_manhattan_dist(xe,ye,0,0)>2.1:
                 continue
                 
-            if (orb1 not in pam.Ni_orbs) and (orb2 not in pam.Ni_orbs) and (orb3 not in pam.Ni_orbs):
+            # only original d10L2 excite eh pair, see above George's idea
+            # so that the final state must be d9sL2, so three holes
+            # must be one on Ni and other 2 are on O
+            if orb1 in pam.Ni_orbs:
+                if not (orb2 in pam.O_orbs and orb3 in pam.O_orbs):
+                    continue
+            elif orb2 in pam.Ni_orbs:
+                if not (orb1 in pam.O_orbs and orb3 in pam.O_orbs):
+                    continue
+            elif orb3 in pam.Ni_orbs:
+                if not (orb1 in pam.O_orbs and orb2 in pam.O_orbs):
+                    continue
+            else:
                 continue
             
             # hole1
@@ -761,7 +778,7 @@ def create_tNiNd_nn_matrix(VS, tNiNd_nn_hop_dir, if_tNiNd_nn_hop, tNiNd_nn_hop_f
                             col.append(row_index)
 
             # hole2
-            if orb2 in pam.Ni_orbs:
+            elif orb2 in pam.Ni_orbs:
                 # eh annilation must be opposite spin
                 if s2==se:
                     continue
@@ -790,7 +807,7 @@ def create_tNiNd_nn_matrix(VS, tNiNd_nn_hop_dir, if_tNiNd_nn_hop, tNiNd_nn_hop_f
                             col.append(row_index)
                             
             # hole3
-            if orb3 in pam.Ni_orbs:
+            elif orb3 in pam.Ni_orbs:
                 # eh annilation must be opposite spin
                 if s3==se:
                     continue
@@ -859,7 +876,8 @@ def create_tpp_nn_matrix(VS,tpp_nn_hop_fac):
                 for dir_ in tpp_nn_hop_dir:
                     vx, vy, vz = directions_to_vecs[dir_]
                     orbs1 = lat.get_unit_cell_rep(x1+vx, y1+vy, z1+vz)
-                    if orbs1 != pam.O_orbs:
+                    
+                    if orbs1!=pam.O1_orbs and orbs1!=pam.O2_orbs:
                         continue
 
                     if not vs.check_in_vs_condition(x1+vx,y1+vy,x2,y2):
@@ -877,6 +895,15 @@ def create_tpp_nn_matrix(VS,tpp_nn_hop_fac):
                         slabel = [s1,o1,x1+vx,y1+vy,z1+vz,s2,orb2,x2,y2,z2]
                         tmp_state = vs.create_two_hole_no_eh_state(slabel)
                         new_state,ph = vs.make_state_canonical(tmp_state)
+                        #new_state,ph = vs.make_state_canonical_old(tmp_state)
+                        
+                        s1n = new_state['hole1_spin']
+                        s2n = new_state['hole2_spin']
+                        orb1n = new_state['hole1_orb']
+                        orb2n = new_state['hole2_orb']
+                        x1n, y1n, z1n = new_state['hole1_coord']
+                        x2n, y2n, z2n = new_state['hole2_coord']
+                        #print x1,y1,orb1,s1,x2,y2,orb2,s2,'tpp hops to',x1n, y1n,orb1n,s1n,x2n, y2n,orb2n,s2n
 
                         o12 = sorted([orb1, dir_, o1])
                         o12 = tuple(o12)
@@ -888,7 +915,7 @@ def create_tpp_nn_matrix(VS,tpp_nn_hop_fac):
                     vx, vy, vz = directions_to_vecs[dir_]
                     orbs2 = lat.get_unit_cell_rep(x2+vx, y2+vy, z2+vz)
 
-                    if orbs2!= pam.O_orbs:
+                    if orbs2!=pam.O1_orbs and orbs2!=pam.O2_orbs:
                         continue
 
                     if not vs.check_in_vs_condition(x1,y1,x2+vx,y2+vy): 
@@ -903,8 +930,9 @@ def create_tpp_nn_matrix(VS,tpp_nn_hop_fac):
                             continue
   
                         slabel = [s1,orb1,x1,y1,z1,s2,o2,x2+vx,y2+vy,z2+vz]
-                        tmp_state = vs.create_one_hole_one_eh_state(slabel)
+                        tmp_state = vs.create_two_hole_no_eh_state(slabel)
                         new_state,ph = vs.make_state_canonical(tmp_state)
+                        #new_state,ph = vs.make_state_canonical_old(tmp_state)
 
                         o12 = sorted([orb2, dir_, o2])
                         o12 = tuple(o12)
@@ -929,7 +957,7 @@ def create_tpp_nn_matrix(VS,tpp_nn_hop_fac):
                 for dir_ in tpp_nn_hop_dir:
                     vx, vy, vz = directions_to_vecs[dir_]
                     orbs1 = lat.get_unit_cell_rep(x1+vx, y1+vy, z1+vz)
-                    if orbs1 != pam.O_orbs:
+                    if orbs1!=pam.O1_orbs and orbs1!=pam.O2_orbs:
                         continue
 
                     if not vs.check_in_vs_condition1(xe,ye,x1+vx,y1+vy,x2,y2,x3,y3):
@@ -945,7 +973,7 @@ def create_tpp_nn_matrix(VS,tpp_nn_hop_fac):
                             continue
 
                         slabel = [se,orbe,xe,ye,ze,s1,o1,x1+vx,y1+vy,z1+vz,s2,orb2,x2,y2,z2,s3,orb3,x3,y3,z3]
-                        tmp_state = vs.create_one_hole_one_eh_state(slabel)
+                        tmp_state = vs.create_two_hole_one_eh_state(slabel)
                         new_state,ph = vs.make_state_canonical(tmp_state)
 
                         o12 = sorted([orb1, dir_, o1])
@@ -957,7 +985,7 @@ def create_tpp_nn_matrix(VS,tpp_nn_hop_fac):
                 for dir_ in tpp_nn_hop_dir:
                     vx, vy, vz = directions_to_vecs[dir_]
                     orbs2 = lat.get_unit_cell_rep(x2+vx, y2+vy, z2+vz)
-                    if orbs2 != pam.O_orbs:
+                    if orbs2!=pam.O1_orbs and orbs2!=pam.O2_orbs:
                         continue
 
                     if not vs.check_in_vs_condition1(xe,ye,x1,y1,x2+vx,y2+vy,x3,y3):
@@ -973,7 +1001,7 @@ def create_tpp_nn_matrix(VS,tpp_nn_hop_fac):
                             continue
 
                         slabel = [se,orbe,xe,ye,ze,s1,orb1,x1,y1,z1,s2,o2,x2+vx,y2+vy,z2+vz,s3,orb3,x3,y3,z3]
-                        tmp_state = vs.create_one_hole_one_eh_state(slabel)
+                        tmp_state = vs.create_two_hole_one_eh_state(slabel)
                         new_state,ph = vs.make_state_canonical(tmp_state)
 
                         o12 = sorted([orb2, dir_, o2])
@@ -985,7 +1013,7 @@ def create_tpp_nn_matrix(VS,tpp_nn_hop_fac):
                 for dir_ in tpp_nn_hop_dir:
                     vx, vy, vz = directions_to_vecs[dir_]
                     orbs3 = lat.get_unit_cell_rep(x3+vx, y3+vy, z3+vz)
-                    if orbs3 != pam.O_orbs:
+                    if orbs3!=pam.O1_orbs and orbs3!=pam.O2_orbs:
                         continue
 
                     if not vs.check_in_vs_condition1(xe,ye,x1,y1,x2,y2,x3+vx,y3+vy):
@@ -1001,7 +1029,7 @@ def create_tpp_nn_matrix(VS,tpp_nn_hop_fac):
                             continue
 
                         slabel = [se,orbe,xe,ye,ze,s1,orb1,x1,y1,z1,s2,orb2,x2,y2,z2,s3,o3,x3+vx,y3+vy,z3+vz]
-                        tmp_state = vs.create_one_hole_one_eh_state(slabel)
+                        tmp_state = vs.create_two_hole_one_eh_state(slabel)
                         new_state,ph = vs.make_state_canonical(tmp_state)
 
                         o12 = sorted([orb3, dir_, o3])
@@ -1313,13 +1341,10 @@ def create_interaction_matrix_ALL_syms(VS,d_double,p_double,S_val, Sz_val, AorB_
     enter into the matrix element
     
     There are some complications or constraints due to three holes and one Nd electron:
-    Three cases to set up interaction between states i and j:
-    1. i and j are both two_hole_no_eh states;
-    2. i is two_hole_no_eh and j is two_hole_one_eh;
-    3. i and j are both two_hole_one_eh states
-    
-    Then there are constraints:
-    1. Nd electron should have same spin if two states have nonzero interaction matrix element
+    From H_matrix_reducing_VS file, to set up interaction between states i and j:
+    1. i and j belong to the same type, same order of orbitals to label the state (idxi==idxj below)
+    2. i and j's spins are same; or L and s should also have same spin
+    3. Positions of L and Nd-electron should also be the same
     '''    
     #print "start create_interaction_matrix"
     
@@ -1340,27 +1365,44 @@ def create_interaction_matrix_ALL_syms(VS,d_double,p_double,S_val, Sz_val, AorB_
         for i in d_double:
             # state is original state but its orbital info remains after basis change
             state = VS.get_state(VS.lookup_tbl[i])
-            if state['type'] == 'two_hole_no_eh':
-                s1 = state['hole1_spin']
-                s2 = state['hole2_spin']
-                o1 = state['hole1_orb']
-                o2 = state['hole2_orb']
-            elif state['type'] == 'two_hole_one_eh':
-                se = state['e_spin']
-                s1 = state['hole1_spin']
-                s2 = state['hole2_spin']
-                s3 = state['hole3_spin']
-                o1 = state['hole1_orb']
-                o2 = state['hole2_orb']
-                o3 = state['hole3_orb']
+            itype = state['type']
+            if itype == 'two_hole_no_eh':
+                is1 = state['hole1_spin']
+                is2 = state['hole2_spin']
+                io1 = state['hole1_orb']
+                io2 = state['hole2_orb']
+            elif itype == 'two_hole_one_eh':
+                ise = state['e_spin']
+                is1 = state['hole1_spin']
+                is2 = state['hole2_spin']
+                is3 = state['hole3_spin']
+                ioe = state['e_orb']
+                io1 = state['hole1_orb']
+                io2 = state['hole2_orb']
+                io3 = state['hole3_orb']
+                ixe, iye, ize = state['e_coord']
+                ix1, iy1, iz1 = state['hole1_coord']
+                ix2, iy2, iz2 = state['hole2_coord']
+                ix3, iy3, iz3 = state['hole3_coord']
 
-                # find out which two holes are on Ni
-                if o1 not in pam.Ni_orbs:
-                    o1=o2; o2=o3
-                elif o2 not in pam.Ni_orbs:
-                    o2=o3
+                iepos=[ixe, iye, ize]
                 
-            o12 = sorted([o1,o2])
+                # find out which two holes are on Ni
+                # idx is to label which hole is not on Ni
+                if io1 not in pam.Ni_orbs:
+                    assert(io1 in pam.O_orbs)
+                    io1=io2; io2=io3; idxi=1
+                    iLspin=is1; iLorb=io1; iLpos=[ix1, iy1, iz1]
+                elif io2 not in pam.Ni_orbs:
+                    assert(io2 in pam.O_orbs)
+                    io2=io3; idxi=2
+                    iLspin=is2; iLorb=io2; iLpos=[ix2, iy2, iz2]
+                else:
+                    assert(io3 in pam.O_orbs)
+                    idxi=3
+                    iLspin=is3; iLorb=io3; iLpos=[ix3, iy3, iz3]
+                
+            o12 = sorted([io1,io2])
             o12 = tuple(o12)
 
             # S_val, Sz_val obtained from basis.create_singlet_triplet_basis_change_matrix
@@ -1371,7 +1413,7 @@ def create_interaction_matrix_ALL_syms(VS,d_double,p_double,S_val, Sz_val, AorB_
             if o12 not in sym_orbs or S12!=Stot or Sz12 not in Sz_set:
                 continue
 
-            if (o1==o2=='dxz' or o1==o2=='dyz') and AorB_sym[i]!=AorB:
+            if (io1==io2=='dxz' or io1==io2=='dyz') and AorB_sym[i]!=AorB:
                 continue
 
             # get the corresponding index in sym for setting up matrix element
@@ -1382,27 +1424,57 @@ def create_interaction_matrix_ALL_syms(VS,d_double,p_double,S_val, Sz_val, AorB_
                     continue
 
                 state = VS.get_state(VS.lookup_tbl[j])
-                if state['type'] == 'two_hole_no_eh':
-                    o3 = state['hole1_orb']
-                    o4 = state['hole2_orb']
-                elif state['type'] == 'two_hole_one_eh':
-                    o3 = state['hole1_orb']
-                    o4 = state['hole2_orb']
-                    o5 = state['hole3_orb']
+                jtype = state['type']
+                
+                if jtype!=itype:
+                    continue
+                
+                if jtype == 'two_hole_no_eh':
+                    js1 = state['hole1_spin']
+                    js2 = state['hole2_spin']
+                    jo1 = state['hole1_orb']
+                    jo2 = state['hole2_orb']
+                elif itype == 'two_hole_one_eh':
+                    jse = state['e_spin']
+                    js1 = state['hole1_spin']
+                    js2 = state['hole2_spin']
+                    js3 = state['hole3_spin']
+                    joe = state['e_orb']
+                    jo1 = state['hole1_orb']
+                    jo2 = state['hole2_orb']
+                    jo3 = state['hole3_orb']
+                    jxe, jye, jze = state['e_coord']
+                    jx1, jy1, jz1 = state['hole1_coord']
+                    jx2, jy2, jz2 = state['hole2_coord']
+                    jx3, jy3, jz3 = state['hole3_coord']
+                    
+                    jepos=[jxe, jye, jze]
 
                     # find out which two holes are on Ni
-                    # idx is to label which hole is not on Ni
-                    if o3 not in pam.Ni_orbs:
-                        o3=o4; o4=o5
-                    elif o4 not in pam.Ni_orbs:
-                        o4=o5
+                    if jo1 not in pam.Ni_orbs:
+                        assert(jo1 in pam.O_orbs)
+                        jo1=jo2; jo2=jo3; idxj=1
+                        jLspin=js1; jLorb=jo1; jLpos=[jx1, jy1, jz1]
+                    elif jo2 not in pam.Ni_orbs:
+                        assert(jo2 in pam.O_orbs)
+                        jo2=jo3; idxj=2
+                        jLspin=js2; jLorb=jo2; jLpos=[jx2, jy2, jz2]
+                    else:
+                        assert(jo3 in pam.O_orbs)
+                        idxj=3
+                        jLspin=js3; jLorb=jo3; jLpos=[jx3, jy3, jz3]
+                        
+                if jtype==itype=='two_hole_one_eh':
+                    if not idxi==idxj and jLspin==iLspin and jLorb==iLorb and jLpos==iLpos \
+                                and jse==ise and joe==ioe and jepos==iepos:
+                        continue
                     
-                o34 = sorted([o3,o4])
+                o34 = sorted([jo1,jo2])
                 o34 = tuple(o34)
                 S34  = S_val[j]
                 Sz34 = Sz_val[j]
 
-                if (o3==o4=='dxz' or o3==o4=='dyz') and AorB_sym[j]!=AorB:
+                if (jo1==jo2=='dxz' or jo1==jo2=='dyz') and AorB_sym[j]!=AorB:
                     continue
 
                 # only same total spin S and Sz state have nonzero matrix element

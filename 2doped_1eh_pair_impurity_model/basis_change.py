@@ -237,6 +237,9 @@ def create_singlet_triplet_basis_change_matrix_d_double(VS,d_double):
     '''
     Similar to above create_singlet_triplet_basis_change_matrix but only applies
     basis change for d_double states
+    
+    Note that for three hole state, its partner state must have exactly the same
+    spin and positions of L and Nd-electron
     '''
     data = []
     row = []
@@ -261,32 +264,43 @@ def create_singlet_triplet_basis_change_matrix_d_double(VS,d_double):
         
     for i in d_double:
         start_state = VS.get_state(VS.lookup_tbl[i])
+        itype = start_state['type']
         
-        if start_state['type'] == 'two_hole_no_eh': 
+        if itype == 'two_hole_no_eh': 
             s1 = start_state['hole1_spin']
             s2 = start_state['hole2_spin']
-            orb1 = start_state['hole1_orb']
-            orb2 = start_state['hole2_orb']
+            o1 = start_state['hole1_orb']
+            o2 = start_state['hole2_orb']
             idx = 0
             
-        elif start_state['type'] == 'two_hole_one_eh':
+        elif itype == 'two_hole_one_eh':
+            se = start_state['e_spin']
             s1 = start_state['hole1_spin']
             s2 = start_state['hole2_spin']
             s3 = start_state['hole3_spin']
-            orb1 = start_state['hole1_orb']
-            orb2 = start_state['hole2_orb']
-            orb3 = start_state['hole3_orb']
+            oe = start_state['e_orb']
+            o1 = start_state['hole1_orb']
+            o2 = start_state['hole2_orb']
+            o3 = start_state['hole3_orb']
+            xe, ye, ze = start_state['e_coord']
+            x1, y1, z1 = start_state['hole1_coord']
+            x2, y2, z2 = start_state['hole2_coord']
+            x3, y3, z3 = start_state['hole3_coord']
+            
+            epos=[xe, ye, ze]
             
             # find out which two holes are on Ni
             # idx is to label which hole is not on Ni
-            if orb1 not in pam.Ni_orbs:
-                s1=s2; s2=s3; orb1=orb2; orb2=orb3
-                idx=1
-            elif orb2 not in pam.Ni_orbs:
-                s2=s3; orb2=orb3
-                idx=2
-            elif orb3 not in pam.Ni_orbs:
+            if o1 not in pam.Ni_orbs:
+                assert(o1 in pam.O_orbs)
+                s1=s2; s2=s3; o1=o2; o2=o3; idx=1
+                Lspin=s1; Lorb=o1; Lpos=[x1, y1, z1]
+            elif o2 not in pam.Ni_orbs:
+                s2=s3; o2=o3; idx=2
+                Lspin=s2; Lorb=o2; Lpos=[x2, y2, z2]
+            elif o3 not in pam.Ni_orbs:
                 idx=3
+                Lspin=s3; Lorb=o3; Lpos=[x3, y3, z3]
                 
         # note the following is generic for two types of states
         if s1==s2:
@@ -320,34 +334,63 @@ def create_singlet_triplet_basis_change_matrix_d_double(VS,d_double):
             break
 
         elif s1=='up' and s2=='dn':
-            if orb1==orb2:               
+            if o1==o2:               
                 # get state as (e1e1 +- e2e2)/sqrt(2) for A and B sym separately 
                 # instead of e1e1 and e2e2
-                if orb1!='dxz' and orb1!='dyz':
+                if o1!='dxz' and o1!='dyz':
                     data.append(np.sqrt(2.0));  row.append(i); col.append(i)
                     S_val[i]  = 0
                     Sz_val[i] = 0
                     count_singlet += 1
-                elif orb1=='dxz':  # no need to consider e2='dyz' case
+                elif o1=='dxz':  # no need to consider e2='dyz' case
                     # find e2e2 state:
                     for e2 in d_double:
                         state = VS.get_state(VS.lookup_tbl[e2])
+                        jtype = state['type']
                         
-                        if state['type'] == 'two_hole_no_eh':
-                            orb1 = state['hole1_orb']
-                            orb2 = state['hole2_orb']
-                        elif state['type'] == 'two_hole_one_eh':
-                            orb1 = state['hole1_orb']
-                            orb2 = state['hole2_orb']
-                            orb3 = state['hole3_orb']
+                        if jtype!=itype:
+                            continue
+                        
+                        if jtype == 'two_hole_no_eh':
+                            o1 = state['hole1_orb']
+                            o2 = state['hole2_orb']
+                        elif jtype == 'two_hole_one_eh':
+                            jse = state['e_spin']
+                            js1 = state['hole1_spin']
+                            js2 = state['hole2_spin']
+                            js3 = state['hole3_spin']
+                            joe = state['e_orb']
+                            jo1 = state['hole1_orb']
+                            jo2 = state['hole2_orb']
+                            jo3 = state['hole3_orb']
+                            jxe, jye, jze = state['e_coord']
+                            jx1, jy1, jz1 = state['hole1_coord']
+                            jx2, jy2, jz2 = state['hole2_coord']
+                            jx3, jy3, jz3 = state['hole3_coord']
                             
-                            # Need to be consistent with the original state_state
-                            if idx==1:
-                                orb1=orb2; orb2=orb3
-                            elif idx==2:
-                                orb2=orb3
+                            jepos=[jxe, jye, jze]
+                            
+                            # find out which two holes are on Ni
+                            # idx is to label which hole is not on Ni
+                            if jo1 not in pam.Ni_orbs:
+                                assert(jo1 in pam.O_orbs)
+                                js1=js2; js2=js3; jo1=jo2; jo2=jo3; idxj=1
+                                jLspin=js1; jLorb=jo1; jLpos=[jx1, jy1, jz1]
+                            elif jo2 not in pam.Ni_orbs:
+                                js2=js3; jo2=jo3; idxj=2
+                                jLspin=js2; jLorb=jo2; jLpos=[jx2, jy2, jz2]
+                            elif jo3 not in pam.Ni_orbs:
+                                idxj=3
+                                jLspin=js3; jLorb=jo3; jLpos=[jx3, jy3, jz3]
                                 
-                        if orb1==orb2=='dyz':
+                            o1=jo1; o2=jo2
+                            
+                        if jtype==itype=='two_hole_one_eh':
+                            if not idxj==idx and jLspin==Lspin and jLorb==Lorb and jLpos==Lpos \
+                                and jse==se and joe==oe and jepos==epos:
+                                continue
+                                
+                        if o1==o2=='dyz':
                             data.append(1.0);  row.append(i);  col.append(i)
                             data.append(1.0);  row.append(e2); col.append(i)
                             AorB_sym[i]  = 1

@@ -233,10 +233,14 @@ def create_singlet_triplet_basis_change_matrix_d_double(VS,d_double):
     for i in d_double:
         # d_double must be one_eh state
         start_state = VS.get_state(VS.lookup_tbl[i])
+        se = start_state['e_spin']
         s1 = start_state['hole1_spin']
         s2 = start_state['hole2_spin']
+        oe = start_state['e_orb']
         orb1 = start_state['hole1_orb']
         orb2 = start_state['hole2_orb']
+        xe, ye, ze = start_state['e_coord']
+        epos=[xe, ye, ze]
 
         if s1==s2:
             # must be triplet
@@ -267,9 +271,23 @@ def create_singlet_triplet_basis_change_matrix_d_double(VS,d_double):
                     # find e2e2 state:
                     for e2 in d_double:
                         state = VS.get_state(VS.lookup_tbl[e2])
-                        orb1 = state['hole1_orb']
-                        orb2 = state['hole2_orb']
-                        if orb1==orb2=='dyz':
+                        jse = state['e_spin']
+                        js1 = state['hole1_spin']
+                        js2 = state['hole2_spin']
+                        joe = state['e_orb']
+                        jorb1 = state['hole1_orb']
+                        jorb2 = state['hole2_orb']
+                        jxe, jye, jze = state['e_coord']
+                        
+                        jepos=[jxe, jye, jze]
+                        
+                        # the other Nd-e should have exactly the same s, orb, position
+                        # this is similar to two hole case, which is more complicated 
+                        # because of another additional L hole
+                        if not jse==se and joe==oe and jepos==epos:
+                            continue
+        
+                        if jorb1==jorb2=='dyz':
                             data.append(1.0);  row.append(i);  col.append(i)
                             data.append(1.0);  row.append(e2); col.append(i)
                             AorB_sym[i]  = 1

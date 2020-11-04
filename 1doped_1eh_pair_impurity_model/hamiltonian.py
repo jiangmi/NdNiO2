@@ -762,7 +762,7 @@ def create_tpp_nn_matrix(VS,tpp_nn_hop_fac):
                     vx, vy, vz = directions_to_vecs[dir_]
                     orbs1 = lat.get_unit_cell_rep(x1+vx, y1+vy, z1+vz)
 
-                    if orbs1!=pam.O_orbs:
+                    if orbs1!=pam.O1_orbs and orbs1!=pam.O2_orbs:
                         continue
 
                     if not vs.check_in_vs_condition(x1+vx,y1+vy,0,0): 
@@ -793,7 +793,7 @@ def create_tpp_nn_matrix(VS,tpp_nn_hop_fac):
                 for dir_ in tpp_nn_hop_dir:
                     vx, vy, vz = directions_to_vecs[dir_]
                     orbs1 = lat.get_unit_cell_rep(x1+vx, y1+vy, z1+vz)
-                    if orbs1 != pam.O_orbs:
+                    if orbs1!=pam.O1_orbs and orbs1!=pam.O2_orbs:
                         continue
 
                     if not vs.check_in_vs_condition(x1+vx,y1+vy,x2,y2):
@@ -822,7 +822,7 @@ def create_tpp_nn_matrix(VS,tpp_nn_hop_fac):
                     vx, vy, vz = directions_to_vecs[dir_]
                     orbs2 = lat.get_unit_cell_rep(x2+vx, y2+vy, z2+vz)
 
-                    if orbs2!= pam.O_orbs:
+                    if orbs2!=pam.O1_orbs and orbs2!=pam.O2_orbs:
                         continue
 
                     if not vs.check_in_vs_condition(x1,y1,x2+vx,y2+vy): 
@@ -1111,10 +1111,18 @@ def create_interaction_matrix_ALL_syms(VS,d_double,p_double,S_val, Sz_val, AorB_
             # the state's orbital info remains after basis change
             state = VS.get_state(VS.lookup_tbl[i])
             if state['type'] == 'one_hole_one_eh':
-                se12 = state['e_spin']
-                o1 = state['hole1_orb']
-                o2 = state['hole2_orb']
-                o12 = sorted([o1,o2])
+                ise = state['e_spin']
+                is1 = state['hole1_spin']
+                is2 = state['hole2_spin']
+                ioe = state['e_orb']
+                io1 = state['hole1_orb']
+                io2 = state['hole2_orb']
+                ixe, iye, ize = state['e_coord']
+                ix1, iy1, iz1 = state['hole1_coord']
+                ix2, iy2, iz2 = state['hole2_coord']
+                iepos=[ixe, iye, ize]
+                
+                o12 = sorted([io1,io2])
                 o12 = tuple(o12)
 
                 # S_val, Sz_val obtained from basis.create_singlet_triplet_basis_change_matrix
@@ -1125,7 +1133,7 @@ def create_interaction_matrix_ALL_syms(VS,d_double,p_double,S_val, Sz_val, AorB_
                 if o12 not in sym_orbs or S12!=Stot or Sz12 not in Sz_set:
                     continue
 
-                if (o1==o2=='dxz' or o1==o2=='dyz') and AorB_sym[i]!=AorB:
+                if (io1==io2=='dxz' or io1==io2=='dyz') and AorB_sym[i]!=AorB:
                     continue
 
                 # get the corresponding index in sym for setting up matrix element
@@ -1137,19 +1145,29 @@ def create_interaction_matrix_ALL_syms(VS,d_double,p_double,S_val, Sz_val, AorB_
                         continue
                         
                     state = VS.get_state(VS.lookup_tbl[j])
-                    se34 = state['e_spin']
-                    o3 = state['hole1_orb']
-                    o4 = state['hole2_orb']
-                    o34 = sorted([o3,o4])
+                    jse = state['e_spin']
+                    js1 = state['hole1_spin']
+                    js2 = state['hole2_spin']
+                    joe = state['e_orb']
+                    jo1 = state['hole1_orb']
+                    jo2 = state['hole2_orb']
+                    jxe, jye, jze = state['e_coord']
+                    jx1, jy1, jz1 = state['hole1_coord']
+                    jx2, jy2, jz2 = state['hole2_coord']
+                    jepos=[jxe, jye, jze]
+                    
+                    o34 = sorted([jo1,jo2])
                     o34 = tuple(o34)
                     S34  = S_val[j]
                     Sz34 = Sz_val[j]
                     
-                    # see H_matrix_reduce_VS 
-                    if se12!=se34:
+                    # the other Nd-e should have exactly the same s, orb, position
+                    # this is similar to two hole case, which is more complicated 
+                    # because of another additional L hole
+                    if not jse==ise and joe==ioe and jepos==iepos:
                         continue
 
-                    if (o3==o4=='dxz' or o3==o4=='dyz') and AorB_sym[j]!=AorB:
+                    if (jo1==jo2=='dxz' or jo1==jo2=='dyz') and AorB_sym[j]!=AorB:
                         continue
 
                     # only same total spin S and Sz state have nonzero matrix element
