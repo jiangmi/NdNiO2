@@ -296,9 +296,11 @@ def create_singlet_triplet_basis_change_matrix_d_double(VS,d_double):
                 s1=s2; s2=s3; o1=o2; o2=o3; idx=1
                 Lspin=s1; Lorb=o1; Lpos=[x1, y1, z1]
             elif o2 not in pam.Ni_orbs:
+                assert(o2 in pam.O_orbs)
                 s2=s3; o2=o3; idx=2
                 Lspin=s2; Lorb=o2; Lpos=[x2, y2, z2]
             elif o3 not in pam.Ni_orbs:
+                assert(o3 in pam.O_orbs)
                 idx=3
                 Lspin=s3; Lorb=o3; Lpos=[x3, y3, z3]
                 
@@ -377,9 +379,11 @@ def create_singlet_triplet_basis_change_matrix_d_double(VS,d_double):
                                 js1=js2; js2=js3; jo1=jo2; jo2=jo3; idxj=1
                                 jLspin=js1; jLorb=jo1; jLpos=[jx1, jy1, jz1]
                             elif jo2 not in pam.Ni_orbs:
+                                assert(jo2 in pam.O_orbs)
                                 js2=js3; jo2=jo3; idxj=2
                                 jLspin=js2; jLorb=jo2; jLpos=[jx2, jy2, jz2]
                             elif jo3 not in pam.Ni_orbs:
+                                assert(jo3 in pam.O_orbs)
                                 idxj=3
                                 jLspin=js3; jLorb=jo3; jLpos=[jx3, jy3, jz3]
                                 
