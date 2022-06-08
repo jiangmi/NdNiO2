@@ -14,7 +14,7 @@ def count_VS(VS):
     count_dnup = 0
     count_dndn = 0
     
-    for i in xrange(0,VS.dim):
+    for i in range(0,VS.dim):
         state = VS.get_state(VS.lookup_tbl[i])
         
         if state['type'] == 'two_hole_no_eh': 
@@ -30,8 +30,8 @@ def count_VS(VS):
             elif s1=='dn' and s2=='dn':
                 count_dndn += 1
 
-    print 'No. of two_hole_no_eh states with count_upup, count_updn, count_dnup, count_dndn:',\
-        count_upup, count_updn, count_dnup, count_dndn
+    print ('No. of two_hole_no_eh states with count_upup, count_updn, count_dnup, count_dndn:',\
+        count_upup, count_updn, count_dnup, count_dndn)
     
     # only correct in most times, not mandatory
     #assert(count_upup==count_dndn)
@@ -85,7 +85,7 @@ def create_singlet_triplet_basis_change_matrix(VS,d_double):
     col = []
     
     #count_upup, count_updn, count_dnup, count_dndn = count_VS(VS)
-    #print count_upup, count_updn, count_dnup, count_dndn
+    #print (count_upup, count_updn, count_dnup, count_dndn)
     
     count_singlet = 0
     count_triplet = 0
@@ -109,7 +109,7 @@ def create_singlet_triplet_basis_change_matrix(VS,d_double):
 
             if i not in count_list:
                 j, ph = find_singlet_triplet_partner(start_state,VS)
-                #print "partner states:", i,j
+                #print ("partner states:", i,j)
                 #print "state i = ", s1, orb1, s2, orb2
                 #j_state = VS.get_state(VS.lookup_tbl[j])
                 #js1 = j_state['hole1_spin']
@@ -293,12 +293,14 @@ def create_singlet_triplet_basis_change_matrix_d_double(VS,d_double):
             # idx is to label which hole is not on Ni
             if o1 not in pam.Ni_orbs:
                 assert(o1 in pam.O_orbs)
-                s1=s2; s2=s3; o1=o2; o2=o3; idx=1
+                idx=1
                 Lspin=s1; Lorb=o1; Lpos=[x1, y1, z1]
+                s1=s2; s2=s3; o1=o2; o2=o3
             elif o2 not in pam.Ni_orbs:
                 assert(o2 in pam.O_orbs)
-                s2=s3; o2=o3; idx=2
+                idx=2
                 Lspin=s2; Lorb=o2; Lpos=[x2, y2, z2]
+                s2=s3; o2=o3
             elif o3 not in pam.Ni_orbs:
                 assert(o3 in pam.O_orbs)
                 idx=3
@@ -318,7 +320,7 @@ def create_singlet_triplet_basis_change_matrix_d_double(VS,d_double):
             count_triplet += 1
 
         elif s1=='dn' and s2=='up':
-            print 'Error: d_double cannot have states with s1=dn, s2=up !'
+            print ('Error: d_double cannot have states with s1=dn, s2=up !')
             tstate = VS.get_state(VS.lookup_tbl[i])
             tse = tstate['e_spin']
             ts1 = tstate['hole1_spin']
@@ -332,7 +334,7 @@ def create_singlet_triplet_basis_change_matrix_d_double(VS,d_double):
             tx1, ty1, tz1 = tstate['hole1_coord']
             tx2, ty2, tz2 = tstate['hole2_coord']
             tx3, ty3, tz3 = tstate['hole3_coord']
-            print 'Error state', i, tse,torbe,txe,tye,ts1,torb1,tx1,ty1,ts2,torb2,tx2,ty2,ts3,torb3,tx3,ty3
+            print ('Error state', i, tse,torbe,txe,tye,ts1,torb1,tx1,ty1,ts2,torb2,tx2,ty2,ts3,torb3,tx3,ty3)
             break
 
         elif s1=='up' and s2=='dn':
@@ -354,8 +356,8 @@ def create_singlet_triplet_basis_change_matrix_d_double(VS,d_double):
                             continue
                         
                         if jtype == 'two_hole_no_eh':
-                            o1 = state['hole1_orb']
-                            o2 = state['hole2_orb']
+                            jo1 = state['hole1_orb']
+                            jo2 = state['hole2_orb']
                         elif jtype == 'two_hole_one_eh':
                             jse = state['e_spin']
                             js1 = state['hole1_spin']
@@ -376,25 +378,26 @@ def create_singlet_triplet_basis_change_matrix_d_double(VS,d_double):
                             # idx is to label which hole is not on Ni
                             if jo1 not in pam.Ni_orbs:
                                 assert(jo1 in pam.O_orbs)
-                                js1=js2; js2=js3; jo1=jo2; jo2=jo3; idxj=1
+                                idxj=1
                                 jLspin=js1; jLorb=jo1; jLpos=[jx1, jy1, jz1]
+                                js1=js2; js2=js3; jo1=jo2; jo2=jo3
                             elif jo2 not in pam.Ni_orbs:
                                 assert(jo2 in pam.O_orbs)
-                                js2=js3; jo2=jo3; idxj=2
+                                idxj=2
                                 jLspin=js2; jLorb=jo2; jLpos=[jx2, jy2, jz2]
+                                js2=js3; jo2=jo3
                             elif jo3 not in pam.Ni_orbs:
                                 assert(jo3 in pam.O_orbs)
                                 idxj=3
                                 jLspin=js3; jLorb=jo3; jLpos=[jx3, jy3, jz3]
                                 
-                            o1=jo1; o2=jo2
-                            
                         if jtype==itype=='two_hole_one_eh':
-                            if not idxj==idx and jLspin==Lspin and jLorb==Lorb and jLpos==Lpos \
-                                and jse==se and joe==oe and jepos==epos:
+                            if not (idxj==idx and jLspin==Lspin and jLorb==Lorb and jLpos==Lpos \
+                                and jse==se and joe==oe and jepos==epos):
                                 continue
-                                
-                        if o1==o2=='dyz':
+                           
+                        # note the following is generic for two types of states
+                        if jo1==jo2=='dyz':
                             data.append(1.0);  row.append(i);  col.append(i)
                             data.append(1.0);  row.append(e2); col.append(i)
                             AorB_sym[i]  = 1
@@ -438,8 +441,8 @@ def create_singlet_triplet_basis_change_matrix_d_double(VS,d_double):
     return sps.coo_matrix((data,(row,col)),shape=(VS.dim,VS.dim))/np.sqrt(2.0), S_val, Sz_val, AorB_sym
 
 def print_VS_after_basis_change(VS,S_val,Sz_val):
-    print 'print_VS_after_basis_change:'
-    for i in xrange(0,VS.dim):
+    print ('print_VS_after_basis_change:')
+    for i in range(0,VS.dim):
         state = VS.get_state(VS.lookup_tbl[i])
         ts1 = state['hole1_spin']
         ts2 = state['hole2_spin']
@@ -449,5 +452,5 @@ def print_VS_after_basis_change(VS,S_val,Sz_val):
         tx2, ty2, tz2 = state['hole2_coord']
         #if ts1=='up' and ts2=='up':
         if torb1=='dx2y2' and torb2=='px':
-            print i, ts1,torb1,tx1,ty1,tz1,ts2,torb2,tx2,ty2,tz2,'S=',S_val[i],'Sz=',Sz_val[i]
+            print (i, ts1,torb1,tx1,ty1,tz1,ts2,torb2,tx2,ty2,tz2,'S=',S_val[i],'Sz=',Sz_val[i])
             

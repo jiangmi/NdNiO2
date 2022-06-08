@@ -134,7 +134,7 @@ class LanczosSolver:
             if j < self.maxiter - 1 and mode == 'FIRST':
                 self.beta[j] = linalg.norm(q)
                 if mode == 'FIRST' and self.beta[j] < self.eps:
-                    print "Beta very small: Invariant sub-space reached after ", j, " iterations"
+                    print ("Beta very small: Invariant sub-space reached after ", j, " iterations")
                     break
             j += 1
 

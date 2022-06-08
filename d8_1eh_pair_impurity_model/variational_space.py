@@ -1,9 +1,20 @@
 '''
-Contains a class for the variational space for the NdNiO2 layer
+Contains a class for the variational space for the NiO2 layer
 and functions used to represent states as dictionaries.
 Distance (L1-norm) between any two particles(holes) cannot > cutoff Mc
 
-Analysis of VS in terms of spin symmetry:
+George's email on Jul.6, 2021:
+If indeed you cont have an electron hole pair as in the first case i.e. only 2 holes and not 3 holes plus an electron
+then you cover all of space since you can have only triplets and singlets and S=0 or 1 and these states are all covered by
+considering only the Sz=0 of the singlet and the triplet i.e. up down + or- down up.
+However with 3 holes and 1 electron the three holes could be in a state S=3/2 or S=1/2 and the coupling with the electron 
+could get you to S=2,1,0. However if there is an electron in Z then there must be a hole in dz2 so at least one of the 3 holes
+must be dz2 and it must have the same spin as the electron in Z. 
+As long as we neglect more than one electron hole pair and not more than 2 ligand holes then the above is correct. If we
+consider also 3 ligand hole states say starting from d8x2z2, we can end up with d10Lx2Lz2Lz2Z but then the spin of one of the Lz2 must be the same as the spin of the electron in Z.
+This should also limit your Hilbert space needed? I supppose that you are working in the space with S as a good quantum number i.e. two hole states are singlets or triplets and the only 3 hole states must involve a Z electron and a hole of z2 symmetry and with a spin in the same direction as the Z electron.
+
+Previous analysis of VS in terms of spin symmetry:
 Because we allow 1 e-h pair at most, plus a doped hole, VS consists of:
 1. two up_up holes (same as NiO2 model considering two holes)
 2. two up_dn holes (same as NiO2 model considering two holes)
@@ -26,6 +37,8 @@ The simple rule is starting from d8, d9L, d10L2 with up and dn spins
 
 Then in the presence of e-h pair, the only constraint for spin is that 
 the four spins (1 el and 3 holes) should form a list of up up dn dn. 
+
+Enforce e electron has up spin ?!
 '''
 import parameters as pam
 import lattice as lat
@@ -34,8 +47,8 @@ import numpy as np
 
 def create_two_hole_no_eh_state(slabel):
     '''
-    Creates a dictionary representing the special one-hole state
-    without any el-hole pairs
+    Creates a dictionary representing the two-hole state
+    without el-hole pairs
     '''
     state = {'type': 'two_hole_no_eh',\
              'hole1_spin' : slabel[0],  \
@@ -57,7 +70,7 @@ def create_two_hole_one_eh_state(slabel):
     eh pair must have opposite spin
     
     Note: To reduce the VS size, without loss of generality, may assume
-          Nd electron has spin up and at least one hole spin down
+          Os electron has spin up and at least one hole spin down
 
     Note
     ----
@@ -76,7 +89,11 @@ def create_two_hole_one_eh_state(slabel):
     #assert(check_in_vs_condition(x1,y1,x2,y2))
     #assert(check_in_vs_condition(xe,ye,x1,y1))
     #assert(check_in_vs_condition(xe,ye,x2,y2))
-    assert(s1!=se or s2!=se or s3!=se)
+    
+    if pam.eh_spin_def=='same':
+        assert(s1==se or s2==se or s3==se)
+    elif pam.eh_spin_def=='oppo':
+        assert(s1!=se or s2!=se or s3!=se)
     
     state = {'type'    :'two_hole_one_eh',\
              'e_spin'  : se,\
@@ -96,7 +113,7 @@ def create_two_hole_one_eh_state(slabel):
     
 def reorder_state(slabel):
     '''
-    reorder the s, orb, coord's labelling a state to prepare for generating its canonical state
+    reorder the s, orb, coord's labeling a state to prepare for generating its canonical state
     Useful for three hole case especially !!!
     '''
     s1 = slabel[0]; orb1 = slabel[1]; x1 = slabel[2]; y1 = slabel[3]; z1 = slabel[4];
@@ -299,11 +316,11 @@ class VariationalSpace:
             self.filter_func = filter_func
         self.lookup_tbl = self.create_lookup_tbl()
         self.dim = len(self.lookup_tbl)
-        print "VS.dim = ", self.dim
+        print ("VS.dim = ", self.dim)
         #self.print_VS()
 
     def print_VS(self):
-        for i in xrange(0,self.dim):
+        for i in range(0,self.dim):
             state = self.get_state(self.lookup_tbl[i])
             
             if state['type'] == 'two_hole_no_eh':
@@ -313,7 +330,7 @@ class VariationalSpace:
                 orb2 = state['hole2_orb']
                 x1, y1, z1 = state['hole1_coord']
                 x2, y2, z2 = state['hole2_coord']
-                print 'no_eh state', i, s1,orb1,x1,y1,s2,orb2,x2,y2
+                print ('no_eh state', i, s1,orb1,x1,y1,s2,orb2,x2,y2)
                 
             elif state['type'] == 'two_hole_one_eh':  
                 se = state['e_spin']
@@ -328,14 +345,14 @@ class VariationalSpace:
                 x1, y1, z1 = state['hole1_coord']
                 x2, y2, z2 = state['hole2_coord']
                 x3, y3, z3 = state['hole3_coord']
-                print 'one_eh state', i, se,orbe,xe,ye,s1,orb1,x1,y1,s2,orb2,x2,y2,s3,orb3,x3,y3
+                print ('one_eh state', i, se,orbe,xe,ye,ze,s1,orb1,x1,y1,s2,orb2,x2,y2,s3,orb3,x3,y3)
                 
     def create_lookup_tbl(self):
         '''
         Create a sorted lookup table containing the unique identifiers 
         (uid) of all the states in the variational space.
         
-        Manhattan distance between a hole and the Cu-site (0,0) does not exceed Mc
+        Manhattan distance between a hole and the Ni-site (0,0) does not exceed Mc
         Then the hole-hole distance cannot be larger than 2*Mc
 
         Returns
@@ -350,124 +367,130 @@ class VariationalSpace:
         for vx in range(-Mc,Mc+1):
             Bv = Mc - abs(vx)
             for vy in range(-Bv,Bv+1):
-                for vz in [0]:
-                    orb1s = lat.get_unit_cell_rep(vx,vy,vz)
-                    if orb1s==['NotOnSublattice'] or orb1s==pam.Nd_orbs:
-                        continue
+                orb1s = lat.get_unit_cell_rep(vx,vy,0)
+                if orb1s==['NotOnSublattice'] or orb1s==pam.Ovacancy_orbs:
+                    continue
 
-                    # hole2:
-                    for wx in range(-Mc,Mc+1):
-                        Bw = Mc - abs(wx)
-                        for wy in range(-Bw,Bw+1):
-                            for wz in [0]:
-                                orb2s = lat.get_unit_cell_rep(wx,wy,wz)
-                                if orb2s==['NotOnSublattice'] or orb2s==pam.Nd_orbs:
-                                    continue
+                # hole2:
+                for wx in range(-Mc,Mc+1):
+                    Bw = Mc - abs(wx)
+                    for wy in range(-Bw,Bw+1):
+                        orb2s = lat.get_unit_cell_rep(wx,wy,0)
+                        if orb2s==['NotOnSublattice'] or orb2s==pam.Ovacancy_orbs:
+                            continue
 
-                                if not check_in_vs_condition(vx,vy,wx,wy):
-                                    continue
+                        if not check_in_vs_condition(vx,vy,wx,wy):
+                            continue
 
-                                for orb1 in orb1s:
-                                    for orb2 in orb2s:
-                                        for s1 in ['up','dn']:
-                                            for s2 in ['up','dn']:   
-                                                # see H_matrix_reducing_VS.pdf
-                                                if pam.reduce_VS==1:
-                                                    if s1==s2:
-                                                        continue
+                        for orb1 in orb1s:
+                            for orb2 in orb2s:
+                                for s1 in ['up','dn']:
+                                    for s2 in ['up','dn']:   
+                                        # see above G's email and also Mona's email on Jul.8,2021
+                                        if pam.reduce_VS==1:
+                                            if s1==s2:
+                                                continue
 
-                                                # consider Pauli principle
-                                                if s1==s2 and orb1==orb2 and vx==wx and vy==wy and vz==wz:
-                                                    continue 
-                                                    
-                                                slabel = [s1,orb1,vx,vy,vz,s2,orb2,wx,wy,wz]
-                                                state = create_two_hole_no_eh_state(slabel)
-                                                canonical_state,_ = make_state_canonical(state)
+                                        # consider Pauli principle
+                                        if s1==s2 and orb1==orb2 and vx==wx and vy==wy:
+                                            continue 
 
-                                                if self.filter_func(canonical_state):
-                                                    uid = self.get_uid(canonical_state)
-                                                    lookup_tbl.append(uid)
-                                                    
+                                        slabel = [s1,orb1,vx,vy,0,s2,orb2,wx,wy,0]
+                                        state = create_two_hole_no_eh_state(slabel)
+                                        canonical_state,_ = make_state_canonical(state)
+
+                                        if self.filter_func(canonical_state):
+                                            uid = self.get_uid(canonical_state)
+                                            lookup_tbl.append(uid)
+           
+        #print 'start generating states with one eh'
         # one e-h pair
         # electron:
         for ux in range(-Mc,Mc+1):
             Bu = Mc - abs(ux)
             for uy in range(-Bu,Bu+1):
-                for uz in [0]:
+                for uz in [-1,1]:
                     orbes = lat.get_unit_cell_rep(ux,uy,uz)
                     
                     # e must be on Nd
-                    if orbes!=pam.Nd_orbs:
+                    if orbes!=pam.Ovacancy_orbs:
                         continue
 
                     # hole1:
                     for vx in range(-Mc,Mc+1):
                         Bv = Mc - abs(vx)
                         for vy in range(-Bv,Bv+1):
-                            for vz in [0]:
-                                orb1s = lat.get_unit_cell_rep(vx,vy,vz)
-                                if orb1s==['NotOnSublattice'] or orb1s==pam.Nd_orbs:
-                                    continue
+                            orb1s = lat.get_unit_cell_rep(vx,vy,0)
+                            if orb1s==['NotOnSublattice'] or orb1s==pam.Ovacancy_orbs:
+                                continue
 
-                                # hole2:
-                                for wx in range(-Mc,Mc+1):
-                                    Bw = Mc - abs(wx)
-                                    for wy in range(-Bw,Bw+1):
-                                        for wz in [0]:
-                                            orb2s = lat.get_unit_cell_rep(wx,wy,wz)
-                                            if orb2s==['NotOnSublattice'] or orb2s==pam.Nd_orbs:
+                            # hole2:
+                            for wx in range(-Mc,Mc+1):
+                                Bw = Mc - abs(wx)
+                                for wy in range(-Bw,Bw+1):
+                                    orb2s = lat.get_unit_cell_rep(wx,wy,0)
+                                    if orb2s==['NotOnSublattice'] or orb2s==pam.Ovacancy_orbs:
+                                        continue
+
+                                    # hole3:
+                                    for tx in range(-Mc,Mc+1):
+                                        Bt = Mc - abs(tx)
+                                        for ty in range(-Bt,Bt+1):
+                                            orb3s = lat.get_unit_cell_rep(tx,ty,0)
+                                            if orb3s==['NotOnSublattice'] or orb3s==pam.Ovacancy_orbs:
                                                 continue
-                                                
-                                            # hole3:
-                                            for tx in range(-Mc,Mc+1):
-                                                Bt = Mc - abs(tx)
-                                                for ty in range(-Bt,Bt+1):
-                                                    for tz in [0]:
-                                                        orb3s = lat.get_unit_cell_rep(tx,ty,tz)
-                                                        if orb3s==['NotOnSublattice'] or orb3s==pam.Nd_orbs:
-                                                            continue
-                                                
-                                                        if not check_in_vs_condition1(ux,uy,vx,vy,wx,wy,tx,ty):
-                                                            continue
 
-                                                        for orbe in orbes:
-                                                            for orb1 in orb1s:
-                                                                for orb2 in orb2s:
-                                                                    for orb3 in orb3s:
-                                                                        for se in ['up','dn']:
-                                                                            for s1 in ['up','dn']:
-                                                                                for s2 in ['up','dn']:   
-                                                                                    for s3 in ['up','dn']: 
-                                                                                        # eh pair has opposite spin
-                                                                                        if s1==se and s2==se and s3==se:
-                                                                                            continue
+                                            if not check_in_vs_condition1(ux,uy,vx,vy,wx,wy,tx,ty):
+                                                continue
 
-                                                                                        # neglect d7 state !!
-                                                                                        if orb1 in pam.Ni_orbs and \
-                                                                                            orb2 in pam.Ni_orbs and \
-                                                                                            orb3 in pam.Ni_orbs:
-                                                                                            continue
+                                            for orbe in orbes:
+                                                for orb1 in orb1s:
+                                                    for orb2 in orb2s:
+                                                        for orb3 in orb3s:
+                                                            for se in ['up','dn']:
+                                                                for s1 in ['up','dn']:
+                                                                    for s2 in ['up','dn']:   
+                                                                        for s3 in ['up','dn']: 
+                                                                            if pam.eh_spin_def=='same':
+                                                                                # eh pair has same spin
+                                                                                if s1!=se and s2!=se and s3!=se:
+                                                                                    continue
+                                                                            elif pam.eh_spin_def=='oppo':
+                                                                                # eh pair has oppo spin
+                                                                                if s1==se and s2==se and s3==se:
+                                                                                    continue
 
-                                                                                        # screen out same hole spin states
-                                                                                        if pam.reduce_VS==1:
-                                                                                            sss = sorted([se,s1,s2,s3])
-                                                                                            if sss!=['dn','dn','up','up']:
-                                                                                                continue
+                                                                            # neglect d7 state !!
+                                                                            if orb1 in pam.Ni_orbs and \
+                                                                                orb2 in pam.Ni_orbs and \
+                                                                                orb3 in pam.Ni_orbs:
+                                                                                continue
 
-                                                                                        # consider Pauli principle
-                                                                                        if not check_Pauli(s1,orb1,vx,vy,vz,\
-                                                                                                           s2,orb2,wx,wy,wz,\
-                                                                                                           s3,orb3,tx,ty,tz):
-                                                                                            continue 
-                                                                                            
-                                                                                        slabel = [se,orbe,ux,uy,uz,s1,orb1,vx,vy,vz,s2,orb2,wx,wy,wz,s3,orb3,tx,ty,tz]
-                                                                                            
-                                                                                        state = create_two_hole_one_eh_state(slabel)
-                                                                                        canonical_state,_ = make_state_canonical(state)
+                                                                            # assume one hole is up (see no-eh case)
+                                                                            if pam.reduce_VS==1:
+                                                                                sss = sorted([se,s1,s2,s3])
+                                                                                if pam.eh_spin_def=='same':
+                                                                                    if sss!=['dn','dn','dn','up'] and \
+                                                                                       sss!=['dn','up','up','up']:
+                                                                                        continue
+                                                                                elif pam.eh_spin_def=='oppo':
+                                                                                    if sss!=['dn','dn','up','up']:
+                                                                                        continue
 
-                                                                                        if self.filter_func(canonical_state):
-                                                                                            uid = self.get_uid(canonical_state)
-                                                                                            lookup_tbl.append(uid)
+                                                                            # consider Pauli principle
+                                                                            if not check_Pauli(s1,orb1,vx,vy,0,\
+                                                                                               s2,orb2,wx,wy,0,\
+                                                                                               s3,orb3,tx,ty,0):
+                                                                                continue 
+
+                                                                            slabel = [se,orbe,ux,uy,uz,s1,orb1,vx,vy,0,s2,orb2,wx,wy,0,s3,orb3,tx,ty,0]
+
+                                                                            state = create_two_hole_one_eh_state(slabel)
+                                                                            canonical_state,_ = make_state_canonical(state)
+
+                                                                            if self.filter_func(canonical_state):
+                                                                                uid = self.get_uid(canonical_state)
+                                                                                lookup_tbl.append(uid)
 
  
         lookup_tbl = list(set(lookup_tbl)) # remove duplicates
@@ -617,9 +640,9 @@ class VariationalSpace:
 
             # note the final +off1 to avoid mixing with no_eh state labeled as 0
             uid = ie + 2*i1 + 4*i2 +8*i3 \
-                + 16*ze +32*z1 +64*z2 +128*z3 \
-                + 256*oe +256*N*o1 +256*N2*o2 +256*N3*o3 \
-                + 256*N4*( (ye+s) + (xe+s)*B1 + (y1+s)*B2 + (x1+s)*B3 + (y2+s)*B4 + (x2+s)*B5 + (y3+s)*B6 + (x3+s)*B7) +off1
+                + 16*(ze+1) +48*z1 +96*z2 +192*z3 \
+                + 384*oe +384*N*o1 +384*N2*o2 +384*N3*o3 \
+                + 384*N4*( (ye+s) + (xe+s)*B1 + (y1+s)*B2 + (x1+s)*B3 + (y2+s)*B4 + (x2+s)*B5 + (y3+s)*B6 + (x3+s)*B7) +off1
 
             # check if uid maps back to the original state, namely uid's uniqueness
             tstate = self.get_state(uid)
@@ -665,23 +688,23 @@ class VariationalSpace:
             #uid_ = uid_ % (16*N2*(B3+B2+B1)*2)
             #y2 = uid_/(16*N2*(B2+B1+1)) - s
             #uid_ = uid_ % (16*N2*(B2+B1+1))
-            x2 = uid_/(16*N2*B3) - s
+            x2 = int(uid_/(16*N2*B3)) - s
             uid_ = uid_ % (16*N2*B3)
-            y2 = uid_/(16*N2*B2) - s
+            y2 = int(uid_/(16*N2*B2)) - s
             uid_ = uid_ % (16*N2*B2)
-            x1 = uid_/(16*N2*B1) - s
+            x1 = int(uid_/(16*N2*B1)) - s
             uid_ = uid_ % (16*N2*B1)
-            y1 = uid_/(16*N2) - s
+            y1 = int(uid_/(16*N2)) - s
             uid_ = uid_ % (16*N2)
-            o2 = uid_/(16*N) 
+            o2 = int(uid_/(16*N)) 
             uid_ = uid_ % (16*N)
-            o1 = uid_/16 
+            o1 = int(uid_/16) 
             uid_ = uid_ % 16
-            z2 = uid_/8 
+            z2 = int(uid_/8) 
             uid_ = uid_ % 8
-            z1 = uid_/4 
+            z1 = int(uid_/4) 
             uid_ = uid_ % 4
-            i2 = uid_/2 
+            i2 = int(uid_/2)
             i1 = uid_ % 2
             
             orb1 = lat.int_orb[o1]
@@ -693,43 +716,43 @@ class VariationalSpace:
             state = create_two_hole_no_eh_state(slabel)
         else:
             uid_ = uid - off1
-            x3 = uid_/(256*N4*B7) - s
-            uid_ = uid_ % (256*N4*B7)
-            y3 = uid_/(256*N4*B6) - s
-            uid_ = uid_ % (256*N4*B6)
-            x2 = uid_/(256*N4*B5) - s
-            uid_ = uid_ % (256*N4*B5)
-            y2 = uid_/(256*N4*B4) - s
-            uid_ = uid_ % (256*N4*B4)
-            x1 = uid_/(256*N4*B3) - s
-            uid_ = uid_ % (256*N4*B3)
-            y1 = uid_/(256*N4*B2) - s
-            uid_ = uid_ % (256*N4*B2)
-            xe = uid_/(256*N4*B1) - s
-            uid_ = uid_ % (256*N4*B1)
-            ye = uid_/(256*N4) - s
-            uid_ = uid_ % (256*N4)
-            o3 = uid_/(256*N3) 
-            uid_ = uid_ % (256*N3)
-            o2 = uid_/(256*N2) 
-            uid_ = uid_ % (256*N2)
-            o1 = uid_/(256*N) 
-            uid_ = uid_ % (256*N)
-            oe = uid_/256
-            uid_ = uid_ % 256
-            z3 = uid_/128
-            uid_ = uid_ % 128
-            z2 = uid_/64
-            uid_ = uid_ % 64
-            z1 = uid_/32
-            uid_ = uid_ % 32
-            ze = uid_/16
+            x3 = int(uid_/(384*N4*B7)) - s
+            uid_ = uid_ % (384*N4*B7)
+            y3 = int(uid_/(384*N4*B6)) - s
+            uid_ = uid_ % (384*N4*B6)
+            x2 = int(uid_/(384*N4*B5)) - s
+            uid_ = uid_ % (384*N4*B5)
+            y2 = int(uid_/(384*N4*B4)) - s
+            uid_ = uid_ % (384*N4*B4)
+            x1 = int(uid_/(384*N4*B3)) - s
+            uid_ = uid_ % (384*N4*B3)
+            y1 = int(uid_/(384*N4*B2)) - s
+            uid_ = uid_ % (384*N4*B2)
+            xe = int(uid_/(384*N4*B1)) - s
+            uid_ = uid_ % (384*N4*B1)
+            ye = int(uid_/(384*N4)) - s
+            uid_ = uid_ % (384*N4)
+            o3 = int(uid_/(384*N3)) 
+            uid_ = uid_ % (384*N3)
+            o2 = int(uid_/(384*N2)) 
+            uid_ = uid_ % (384*N2)
+            o1 = int(uid_/(384*N)) 
+            uid_ = uid_ % (384*N)
+            oe = int(uid_/384)
+            uid_ = uid_ % 384
+            z3 = int(uid_/192)
+            uid_ = uid_ % 192
+            z2 = int(uid_/96)
+            uid_ = uid_ % 96
+            z1 = int(uid_/48)
+            uid_ = uid_ % 48
+            ze = int(uid_/16)-1
             uid_ = uid_ % 16
-            i3 = uid_/8
+            i3 = int(uid_/8)
             uid_ = uid_ % 8
-            i2 = uid_/4
+            i2 = int(uid_/4)
             uid_ = uid_ % 4
-            i1 = uid_/2 
+            i1 = int(uid_/2) 
             ie = uid_ % 2
 
             orb3 = lat.int_orb[o3]
