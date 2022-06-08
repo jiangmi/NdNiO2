@@ -77,7 +77,7 @@ eh_spin_def = 'same'  # 'oppo'
 basis_change_type = 'd_double' # 'all_states' or 'd_double'
 if_print_VS_after_basis_change = 0
 
-if_compute_Aw = 1
+if_compute_Aw = 0
 if if_compute_Aw==1:
     if_find_lowpeak = 0
     if if_find_lowpeak==1:

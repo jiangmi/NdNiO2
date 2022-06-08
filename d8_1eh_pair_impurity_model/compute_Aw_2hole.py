@@ -20,7 +20,8 @@ import basis_change as basis
 import get_state as getstate
 import utility as util
 import plotfig as fig
-import ground_state as gs
+#import ground_state as gs
+import ground_state_lanczos as gs
 import lanczos
 import time
 start_time = time.time()
@@ -85,10 +86,10 @@ def compute_Aw_main(A,ep,tpd,tpp,pds,pdp,pps,ppp,tNiOs,tOsOs,tOsOs_p,Upp,\
         if pam.if_get_ground_state==1:
             vals, vecs, wgt_d8, wgt_d9L, wgt_d10L2 = gs.get_ground_state(H, VS, S_val,Sz_val)
             if Norb==8:
-                util.write_GS('Egs_'+flowpeak+'.txt',A,ep,tpd,vals[0])
+                util.write_GS('Egs_'+flowpeak+'.txt',A,ep,tpd,vals)
                 util.write_GS_components('GS_weights_'+flowpeak+'.txt',A,ep,tpd,wgt_d8, wgt_d9L, wgt_d10L2)
             elif Norb==10 or Norb==11 or Norb==12:
-                util.write_GS2('Egs_'+flowpeak+'.txt',A,ep,pds,pdp,vals[0])
+                util.write_GS2('Egs_'+flowpeak+'.txt',A,ep,pds,pdp,vals)
                 util.write_GS_components2('GS_weights_'+flowpeak+'.txt',A,ep,pds,pdp,wgt_d8, wgt_d9L, wgt_d10L2)
             
         #########################################################################
@@ -100,27 +101,27 @@ def compute_Aw_main(A,ep,tpd,tpp,pds,pdp,pps,ppp,tNiOs,tOsOs,tOsOs_p,Upp,\
             fig.compute_Aw_d8_sym(H, VS, d_double, S_val, Sz_val, AorB_sym, A, w_vals, "Aw_d8_sym_", fname)
 
             # compute d9L
-            b1L_state_indices, a1L_state_indices, b1L_state_labels, a1L_state_labels \
-                    = getstate.get_d9L_state_indices(VS, S_val, Sz_val)
-            fig.compute_Aw1(H, VS, w_vals, b1L_state_indices, b1L_state_labels, "Aw_b1L_", fname)
-            fig.compute_Aw1(H, VS, w_vals, a1L_state_indices, a1L_state_labels, "Aw_a1L_", fname)
+#             b1L_state_indices, a1L_state_indices, b1L_state_labels, a1L_state_labels \
+#                     = getstate.get_d9L_state_indices(VS, S_val, Sz_val)
+#             fig.compute_Aw1(H, VS, w_vals, b1L_state_indices, b1L_state_labels, "Aw_b1L_", fname)
+#             fig.compute_Aw1(H, VS, w_vals, a1L_state_indices, a1L_state_labels, "Aw_a1L_", fname)
 
-            # compute d10L2
-            d10L2_state_indices, d10L2_state_labels = getstate.get_d10L2_state_indices(VS, S_val, Sz_val)
-            fig.compute_Aw1(H, VS, w_vals, d10L2_state_indices, d10L2_state_labels, "Aw_d10L2_", fname)
+#             # compute d10L2
+#             d10L2_state_indices, d10L2_state_labels = getstate.get_d10L2_state_indices(VS, S_val, Sz_val)
+#             fig.compute_Aw1(H, VS, w_vals, d10L2_state_indices, d10L2_state_labels, "Aw_d10L2_", fname)
 
-            # compute d8Ls for some special states
-            a1b1Ls_S0_state_indices, a1b1Ls_S0_state_labels, \
-            a1b1Ls_S1_state_indices, a1b1Ls_S1_state_labels, \
-            a1a1Ls_state_indices, a1a1Ls_state_labels \
-                                            = getstate.get_d8Ls_state_indices(VS, d_double, S_val, Sz_val)
-            fig.compute_Aw1(H, VS, w_vals, a1b1Ls_S0_state_indices, a1b1Ls_S0_state_labels, "Aw_a1b1Ls_S0_", fname)
-            fig.compute_Aw1(H, VS, w_vals, a1b1Ls_S1_state_indices, a1b1Ls_S1_state_labels, "Aw_a1b1Ls_S1_", fname)
-            fig.compute_Aw1(H, VS, w_vals, a1a1Ls_state_indices, a1a1Ls_state_labels, "Aw_a1a1Ls_", fname)
+#             # compute d8Ls for some special states
+#             a1b1Ls_S0_state_indices, a1b1Ls_S0_state_labels, \
+#             a1b1Ls_S1_state_indices, a1b1Ls_S1_state_labels, \
+#             a1a1Ls_state_indices, a1a1Ls_state_labels \
+#                                             = getstate.get_d8Ls_state_indices(VS, d_double, S_val, Sz_val)
+#             fig.compute_Aw1(H, VS, w_vals, a1b1Ls_S0_state_indices, a1b1Ls_S0_state_labels, "Aw_a1b1Ls_S0_", fname)
+#             fig.compute_Aw1(H, VS, w_vals, a1b1Ls_S1_state_indices, a1b1Ls_S1_state_labels, "Aw_a1b1Ls_S1_", fname)
+#             fig.compute_Aw1(H, VS, w_vals, a1a1Ls_state_indices, a1a1Ls_state_labels, "Aw_a1a1Ls_", fname)
 
-            # compute d9L2s
-            d9L2s_state_indices, d9L2s_state_labels = getstate.get_d9L2s_state_indices(VS)
-            fig.compute_Aw1(H, VS, w_vals, d9L2s_state_indices, d9L2s_state_labels, "Aw_d9L2s_", fname)
+#             # compute d9L2s
+#             d9L2s_state_indices, d9L2s_state_labels = getstate.get_d9L2s_state_indices(VS)
+#             fig.compute_Aw1(H, VS, w_vals, d9L2s_state_indices, d9L2s_state_labels, "Aw_d9L2s_", fname)
         
     
 ##########################################################################
