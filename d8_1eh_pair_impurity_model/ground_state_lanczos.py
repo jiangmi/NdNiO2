@@ -7,6 +7,7 @@ import math
 import numpy as np
 import scipy.sparse as sps
 import scipy.sparse.linalg
+import time
 
 import parameters as pam
 import hamiltonian as ham
@@ -20,6 +21,7 @@ def get_ground_state(matrix, VS, S_val,Sz_val):
     Obtain the ground state info, namely the lowest peak in Aw_dd's component
     in particular how much weight of various d8 channels: a1^2, b1^2, b2^2, e^2
     '''        
+    t1 = time.time()
     print ('start getting ground state')
     
     # set up Lanczos solver
@@ -37,6 +39,8 @@ def get_ground_state(matrix, VS, S_val,Sz_val):
                                    eps = 1e-8)
     vals = solver.lanczos(x0=Phi0, scratch=scratch, y=vecs, H=matrix)
     print ('GS energy = ', vals)
+    
+    print("get_ground_state_lanczos %s seconds ---" % (time.time() - t1))
     
     # get state components in GS; note that indices is a tuple
     indices = np.nonzero(abs(vecs)>0.01)

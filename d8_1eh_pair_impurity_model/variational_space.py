@@ -272,7 +272,11 @@ def check_in_vs_condition1(x1,y1,x2,y2,x3,y3,x4,y4):
     else:
         return True
 
-def check_Pauli(s1,orb1,x1,y1,z1,s2,orb2,x2,y2,z2,s3,orb3,x3,y3,z3):
+def check_Pauli(slabel):
+    s1 = slabel[0]; orb1 = slabel[1]; x1 = slabel[2]; y1 = slabel[3]; z1 = slabel[4];
+    s2 = slabel[5]; orb2 = slabel[6]; x2 = slabel[7]; y2 = slabel[8]; z2 = slabel[9];
+    s3 = slabel[10]; orb3 = slabel[11]; x3 = slabel[12]; y3 = slabel[13]; z3 = slabel[14];
+    
     if (s1==s2 and orb1==orb2 and x1==x2 and y1==y2 and z1==z2) or \
         (s1==s3 and orb1==orb3 and x1==x3 and y1==y3 and z1==z3) or \
         (s3==s2 and orb3==orb2 and x3==x2 and y3==y2 and z3==z2):
@@ -280,6 +284,28 @@ def check_Pauli(s1,orb1,x1,y1,z1,s2,orb2,x2,y2,z2,s3,orb3,x3,y3,z3):
     else:
         return True
     
+def check_if_one_eh_state(slabel):
+    '''
+    Check if a slabel is reasonable in VS
+    '''
+    se = slabel[0]; orbe = slabel[1]; xe = slabel[2]; ye = slabel[3]; ze = slabel[4];
+    s1 = slabel[5]; orb1 = slabel[6]; x1 = slabel[7]; y1 = slabel[8]; z1 = slabel[9];
+    s2 = slabel[10]; orb2 = slabel[11]; x2 = slabel[12]; y2 = slabel[13]; z2 = slabel[14];
+    s3 = slabel[15]; orb3 = slabel[16]; x3 = slabel[17]; y3 = slabel[18]; z3 = slabel[19];
+    
+    if pam.eh_spin_def=='same':
+        if not (s1==se or s2==se or s3==se):
+            return False 
+    elif pam.eh_spin_def=='oppo':
+        if not (s1!=se or s2!=se or s3!=se):
+            return False 
+
+    slabel_h = [s1,orb1,x1,y1,z1,s2,orb2,x2,y2,z2,s3,orb3,x3,y3,z3]
+    if not check_Pauli(slabel_h):
+        return False 
+    else:
+        return True
+        
 class VariationalSpace:
     '''
     Distance (L1-norm) between any two particles must not exceed a
@@ -320,7 +346,8 @@ class VariationalSpace:
         #self.print_VS()
 
     def print_VS(self):
-        for i in range(0,self.dim):
+        #for i in range(0,self.dim):
+        for i in range(103,104):
             state = self.get_state(self.lookup_tbl[i])
             
             if state['type'] == 'two_hole_no_eh':
@@ -478,9 +505,10 @@ class VariationalSpace:
                                                                                         continue
 
                                                                             # consider Pauli principle
-                                                                            if not check_Pauli(s1,orb1,vx,vy,0,\
-                                                                                               s2,orb2,wx,wy,0,\
-                                                                                               s3,orb3,tx,ty,0):
+                                                                            slabel = [s1,orb1,vx,vy,0,\
+                                                                                      s2,orb2,wx,wy,0,\
+                                                                                      s3,orb3,tx,ty,0]
+                                                                            if not check_Pauli(slabel):
                                                                                 continue 
 
                                                                             slabel = [se,orbe,ux,uy,uz,s1,orb1,vx,vy,0,s2,orb2,wx,wy,0,s3,orb3,tx,ty,0]
@@ -777,7 +805,7 @@ class VariationalSpace:
 
         Parameters
         ----------
-        state: dictionary representing a state
+        state: dictionary representing a stat
 
         Returns
         -------

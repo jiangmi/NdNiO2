@@ -7,6 +7,7 @@ import math
 import numpy as np
 import scipy.sparse as sps
 import scipy.sparse.linalg
+import time
 
 import parameters as pam
 import hamiltonian as ham
@@ -19,6 +20,7 @@ def get_ground_state(matrix, VS, S_val,Sz_val):
     Obtain the ground state info, namely the lowest peak in Aw_dd's component
     in particular how much weight of various d8 channels: a1^2, b1^2, b2^2, e^2
     '''        
+    t1 = time.time()
     print ('start getting ground state')
 #     # in case eigsh does not work but matrix is actually small, e.g. Mc=1 (CuO4)
 #     M_dense = matrix.todense()
@@ -44,6 +46,8 @@ def get_ground_state(matrix, VS, S_val,Sz_val):
     vals.sort()
     print ('lowest eigenvalue of H from np.linalg.eigsh = ')
     print (vals)
+    
+    print("---get_ground_state_eigsh %s seconds ---" % (time.time() - t1))
     
     # get state components in GS and another 9 higher states; note that indices is a tuple
     for k in range(0,1):

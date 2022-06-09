@@ -5,13 +5,15 @@ Keep using NiO2 type lattice but now there is only (0,0) Ni-site
 import parameters as pam
 
 # below used for get_uid and get_state in VS
-if pam.Norb==3:
+if pam.Norb==4:
     orb_int = {'dx2y2': 0,\
                'px':    1,\
-               'py':    2} 
+               'py':    2,\
+               'Os':    3} 
     int_orb = {0: 'dx2y2',\
                1: 'px',\
-               2: 'py'}
+               2: 'py',\
+               3: 'Os'}
 elif pam.Norb==8:
     orb_int = {'d3z2r2': 0,\
                'dx2y2':  1,\
