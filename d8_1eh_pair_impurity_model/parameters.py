@@ -2,7 +2,7 @@ import math
 import numpy as np
 M_PI = math.pi
 
-Mc = 2
+Mc = 5
 
 # Note that Ni-d and O-p orbitals use hole language
 # while Nd orbs use electron language
@@ -16,6 +16,11 @@ ed = {'d3z2r2': 1.2,\
       'dxy'   : 0.3,\
       'dxz'   : 0.7,\
       'dyz'   : 0.7}
+ed = {'d3z2r2': 1.2,\
+      'dx2y2' : 0.0,\
+      'dxy'   : 0.3,\
+      'dxz'   : 0.7,\
+      'dyz'   : 0.7}
 eps = np.arange(3.0, 3.01, 1.0)
 eOs = 2.0
 
@@ -23,9 +28,9 @@ As = np.arange(6.0, 6.01, 2.0)
 B = 0.15
 C = 0.58
 #As = np.arange(100, 100.1, 1.0)
-# As = np.arange(0.0, 0.01, 1.0)
-# B = 0
-# C = 0
+#As = np.arange(0.0, 0.01, 1.0)
+#B = 0
+#C = 0
 
 # Note: tpd and tpp are only amplitude signs are considered separately in hamiltonian.py
 # Slater Koster integrals and the overlaps between px and d_x^2-y^2 is sqrt(3) bigger than between px and d_3z^2-r^2 
@@ -33,8 +38,8 @@ C = 0.58
 
 # IMPORTANT: keep all hoppings below positive to avoid confusion
 #            hopping signs are considered in dispersion separately
-Norb = 12
-if Norb==4 or Norb==8:
+Norb = 10
+if Norb==8:
     #tpds = [0.00001]  # for check_CuO4_eigenvalues.py
     tpds = np.linspace(1.3, 1.3, num=1, endpoint=True) #[0.25]
     #tpds = [0.01]
@@ -77,7 +82,7 @@ eh_spin_def = 'same'  # 'oppo'
 basis_change_type = 'd_double' # 'all_states' or 'd_double'
 if_print_VS_after_basis_change = 0
 
-if_compute_Aw = 1
+if_compute_Aw = 0
 if if_compute_Aw==1:
     if_find_lowpeak = 0
     if if_find_lowpeak==1:
@@ -90,13 +95,13 @@ if if_compute_Aw==1:
 if_get_ground_state = 1
 if if_get_ground_state==1:
     # see issue https://github.com/scipy/scipy/issues/5612
-    Neval = 10
+    Neval = 3
 
 Ni_orbs = ['dx2y2','dxy','dxz','dyz','d3z2r2']
 #Ni_orbs = ['dx2y2','d3z2r2']
 Ovacancy_orbs = ['Os']
     
-if Norb==4 or Norb==8:
+if Norb==8:
     O1_orbs  = ['px']
     O2_orbs  = ['py']
 elif Norb==10:
